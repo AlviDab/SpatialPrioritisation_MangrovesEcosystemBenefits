@@ -1,3 +1,14 @@
+#Set the projection
+cCRS <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+
+#Call functions
+source("Functions/fPlot_Rank.R")
+
+#Call objects
+PUs <- readRDS("RDS/PUs_Splitted.rds")
+result_BioServ <- readRDS("RDS/result_BioServ.rds")
+result_BioServ_WDPA_rmPA <- readRDS("RDS/result_BioServ_WDPA_rmPA.rds")
+
 #Maps zoom
 
 #Thailand Vietnam

@@ -16,9 +16,9 @@ library(tmap)
 library(openxlsx)
 library(xlsx)
 
-source("Functions/fStat_CountryContinent.r")
-source("Functions/fStat_CountryContinent_PAs.r")
-source("Functions/fPlot_Circular.r")
+source("Functions/fStat_CountryContinent.R")
+source("Functions/fStat_CountryContinent_PAs.R")
+source("Functions/fPlot_Circular.R")
 
 result_BioServ <- readRDS("RDS/result_BioServ.rds")
 result_BioServ_WDPA <- readRDS("RDS/result_BioServ_WDPA.rds")

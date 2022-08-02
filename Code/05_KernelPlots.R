@@ -20,8 +20,9 @@ library(xlsx)
 # Kernel's plot
 
 # Create a tibble with the values of representation for 30, and 50% area budget
-source("Functions/fPlot_Kernel.r")
+source("Functions/fPlot_Kernel.R")
 
+PUs <- readRDS("RDS/PUs_Splitted.rds")
 result_BioServ <- readRDS("RDS/result_BioServ.rds")
 result_BioServ_WDPA <- readRDS("RDS/result_BioServ_WDPA.rds")
 result_Bio <- readRDS("RDS/result_Bio.rds")

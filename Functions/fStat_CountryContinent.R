@@ -3,7 +3,7 @@
 ##Priority areas
 
 #n is the rank
-source("Functions/fSelect_PriorityAreasProtected.r")
+source("Functions/fSelect_PriorityAreasProtected.R")
 
 fStat_CountryContinent <- function(result, n) { ##Percentage of mangroves in priority areas (top 10%)
   #Total mangroves by country

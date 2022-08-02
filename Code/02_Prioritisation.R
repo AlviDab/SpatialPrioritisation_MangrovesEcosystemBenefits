@@ -22,11 +22,9 @@ library(tmap)
 #Source the different function
 source("Functions/fPUs_GMW.R") #Function to produce the PUs form the shapefile of the mangroves distribution (Thanks to Jason Everett)
 source("Functions/fIntersection_IUCNnearestfeature.R") #Function to intersect the PUs with the species distribution
-source("Functions/fSelect_LockedIn.R") #Function to select the PUs that are locked-in because already protected
 source("Functions/fSelect_PUsArea.R") #Function to select the area of the PUs
 source("Functions/fExtract_CarbonSequestration.R") #Function to select the area of the PUs
 source("Functions/fCalculate_BioTypArea.R") #Function to select the area of the PUs
-source("Functions/fCompareSolutions.R")
 source("Functions/fCompareThreeSolutions.R")
 source("Functions/fPlot_PrioritizrSolution.R")
 source("Functions/fSolve_Prioritizr.R")
@@ -34,12 +32,10 @@ source("Functions/fPlot_GlobalResults.R")
 source("Functions/fIntersect_CoastalSqueeze.R")
 source("Functions/fIntersect_PointShp.R")
 source("Functions/fRemove_NANearestNeighbourg.R")
-source("Functions/fCreate_KappacorrplotFourScenarios.R")
 source("Functions/fSelect_WDPA.R")
 source("Functions/fPlot_Kernel.R")
 source("Functions/fPlot_PUsValues.R")
 source("Functions/fPlot_Rank.R")
-source("Functions/f_PlotCircular.R")
 source("Functions/fPlot_Radar.R")
 
 #Set the projection
@@ -50,7 +46,7 @@ cCRS <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +n
 
 #Open PUs and large_PUs
 
-PUs <- readRDS("RDS/PUs_SplittedSpecies.rds")
+PUs <- readRDS("RDS/PUs_Splitted.rds")
 PUs_NotSplitted <- readRDS("RDS/PUs_NotSplitted.rds")
 Large_PUs <- readRDS("RDS/Large_PUs_40000.rds")
 
@@ -197,8 +193,8 @@ for(x in 1:100) {
       add_min_shortfall_objective(sum(PUs$AreaGMWKm*(x/100))) %>% #Maximum cost is 30% of the total area
       add_relative_targets(ConsFeatures$amount) %>% # representation targets (Area)
       add_binary_decisions() %>%
-      add_gurobi_solver(gap = 1e-4, threads = 8) %>% 
-      #add_rsymphony_solver(verbose = FALSE) %>% 
+      #add_gurobi_solver(gap = 1e-4, threads = 8) %>% 
+      add_rsymphony_solver(verbose = FALSE) %>% 
       add_feature_weights(ConsFeatures$w)
   }
   
@@ -210,14 +206,16 @@ for(x in 1:100) {
       add_relative_targets(ConsFeatures$amount) %>% # representation targets (Area)
       add_locked_in_constraints(locked_in = "LockedIn") %>% 
       add_binary_decisions() %>%
-      add_gurobi_solver(gap = 1e-4, threads = 8) %>% 
-      #add_rsymphony_solver(verbose = FALSE) %>% 
+      #add_gurobi_solver(gap = 1e-4, threads = 8) %>% 
+      add_rsymphony_solver(verbose = FALSE) %>% 
       add_feature_weights(ConsFeatures$w)
   }
   
   sol_AreaTarget <- solve(p_AreaTarget)
   
   list_sol_AreaTarget_BioServ[[x]] <- list(p_AreaTarget, sol_AreaTarget)
+  
+  #print(x) # sanity check
 }
 
 endTime <- Sys.time()
@@ -290,13 +288,15 @@ for(x in 28:100) {
     add_relative_targets(ConsFeatures$amount) %>% # representation targets (Area)
     add_locked_in_constraints(locked_in = "LockedIn") %>% 
     add_binary_decisions() %>%
-    add_gurobi_solver(gap = 1e-4, threads = 8) %>% 
-    #add_rsymphony_solver(verbose = FALSE) %>% 
+    #add_gurobi_solver(gap = 1e-4, threads = 8) %>% 
+    add_rsymphony_solver(verbose = FALSE) %>% 
     add_feature_weights(ConsFeatures$w)
   
   sol_AreaTarget <- solve(p_AreaTarget)
   
   list_sol_AreaTarget_BioServ_WDPA[[x-27]] <- list(p_AreaTarget, sol_AreaTarget)
+  
+  #print(x) # sanity check
 }
 
 endTime <- Sys.time()
@@ -375,8 +375,8 @@ for(x in 1:100) {
       add_min_shortfall_objective(sum(PUs$AreaGMWKm*(x/100))) %>% #Maximum cost is 30% of the total area
       add_relative_targets(ConsFeatures$amount) %>% # representation targets (Area)
       add_binary_decisions() %>%
-      add_gurobi_solver(gap = 1e-4, threads = 8) %>% 
-      #add_rsymphony_solver(verbose = FALSE) %>% 
+      #add_gurobi_solver(gap = 1e-4, threads = 8) %>% 
+      add_rsymphony_solver(verbose = FALSE) %>% 
       add_feature_weights(ConsFeatures$w)
   }
   
@@ -388,14 +388,16 @@ for(x in 1:100) {
       add_relative_targets(ConsFeatures$amount) %>% # representation targets (Area)
       add_locked_in_constraints(locked_in = "LockedIn") %>% 
       add_binary_decisions() %>%
-      add_gurobi_solver(gap = 1e-4, threads = 8) %>% 
-      #add_rsymphony_solver(verbose = FALSE) %>% 
+      #add_gurobi_solver(gap = 1e-4, threads = 8) %>% 
+      add_rsymphony_solver(verbose = FALSE) %>% 
       add_feature_weights(ConsFeatures$w)
   }
   
   sol_AreaTarget_Bio <- solve(p_AreaTarget_Bio)
   
   list_sol_AreaTarget_Bio[[x]] <- list(p_AreaTarget_Bio, sol_AreaTarget_Bio)
+  
+  #print(x) # sanity check
 }
 
 endTime <- Sys.time()
@@ -469,13 +471,15 @@ for(x in 28:100) {
     add_relative_targets(ConsFeatures$amount) %>% # representation targets (Area)
     add_locked_in_constraints(locked_in = "LockedIn") %>% 
     add_binary_decisions() %>%
-    add_gurobi_solver(gap = 1e-4, threads = 8) %>% 
-    #add_rsymphony_solver(verbose = FALSE) %>% 
+    #add_gurobi_solver(gap = 1e-4, threads = 8) %>% 
+    add_rsymphony_solver(verbose = FALSE) %>% 
     add_feature_weights(ConsFeatures$w)
   
   sol_AreaTarget <- solve(p_AreaTarget)
   
   list_sol_AreaTarget_Bio_WDPA[[x-27]] <- list(p_AreaTarget, sol_AreaTarget)
+  
+  #print(x) # sanity check
 }
 
 endTime <- Sys.time()

@@ -5,6 +5,14 @@
 
 source("Functions/fPlot_PUsValues.R")
 
+#Set the projection
+cCRS <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+
+Large_PUs <- readRDS("RDS/Large_PUs_40000.rds")
+species <- readRDS("RDS/species.rds")
+PUs <- readRDS("RDS/PUs_Splitted.rds")
+PUs_NotSplitted <- readRDS("RDS/PUs_NotSplitted.rds")
+
 #Plot of fishing intensity
 plot_fish <- fPlot_PUsValues(PUs, "Fishing_Intensity", logarithmic = TRUE, scale_fill = "mako")
 ggsave(filename = "Figures/Mollweide/Layers_GlobalMap/Fishing_Intensity_log.svg", plot = plot_fish, width = 49, height = 25)
