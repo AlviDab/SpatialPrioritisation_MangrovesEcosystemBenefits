@@ -1,5 +1,6 @@
-#Split the species distribution by biophysical typology and marine province
+#Author: Dabalà Alvise
 #10/07/2022
+#Split the species distribution by biophysical typology and marine province
 
 #Open all the packages needed
 library(tidyverse)

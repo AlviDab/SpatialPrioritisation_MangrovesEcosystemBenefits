@@ -1,4 +1,4 @@
-library(tidyverse)
+# Author of the code: Alvise Dabalà 
 # Code is adapted from: https://r-graph-gallery.com/circular-barplot.html
 # df should have the following feature, value, group
 # group colors
@@ -69,19 +69,19 @@ fPlot_Circular <- function(df, ext_val, colr, lab, lvl) {
     geom_segment(data=grid_data, aes(x = end, y = ext_val*4, xend = start, yend = ext_val*4), colour = "black", alpha=1, size=0.3, inherit.aes = FALSE ) +
     
     # Add text showing the value of each 100/75/50/25 lines
-    ggplot2::annotate("text", x = rep(max(data$id),5), y = c(ext_val/4, ext_val + ext_val/4, ext_val*2 + ext_val/4, ext_val*3 + ext_val/4, ext_val*4 + ext_val/4), label = lab , color="black", size = 2 , angle=6.5, hjust=1) +
+    ggplot2::annotate("text", x = rep(max(data$id),5), y = c(ext_val/3, ext_val + ext_val/3, ext_val*2 + ext_val/3, ext_val*3 + ext_val/3, ext_val*4 + ext_val/3), label = lab , color="black", size = 2 , angle=6.5, hjust=1) +
     
     ylim(-ext_val*3.2, ext_val*4*4/3) +
     
     # Add labels on top of each bar
-    geom_text(data = label_data, aes(x = id, y = tot + 100, label=feature, hjust=hjust), color="black", alpha=0.6, size=2.5, angle = label_data$angle, inherit.aes = FALSE ) +
+    geom_text(data = label_data, aes(x = id, y = tot + 100, label=feature, hjust=hjust), color="black", alpha=0.6, size=2.3, angle = label_data$angle, inherit.aes = FALSE ) +
     
     # Add base line information
     geom_segment(data = base_data, aes(x = start, y = -ext_val/7.5, xend = end, yend = -ext_val/7.5), colour = "black", alpha = 0.8, size = 0.5 , inherit.aes = FALSE )  +
-    geom_text(data = base_data, aes(x = title, y = -ext_val/1.875, label = group), hjust = c(1,1,0,0), colour = "black", alpha = 0.8, size = 2.5, fontface = "bold", inherit.aes = FALSE) + 
+    geom_text(data = base_data, aes(x = title, y = -ext_val/1.875, label = group), hjust = c(1,1,0,0), colour = "black", alpha = 0.8, size = 2, fontface = "bold", inherit.aes = FALSE) + 
     theme_minimal() +
     theme(
-      legend.position = "bottom",
+      legend.position = "none",
       axis.text = element_blank(),
       axis.title = element_blank(),
       panel.grid = element_blank()

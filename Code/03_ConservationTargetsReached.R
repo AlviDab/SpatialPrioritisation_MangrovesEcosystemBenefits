@@ -1,17 +1,14 @@
+#Author: Dabalà Alvise
+
+#Analysis of the number of conservation targets reached for incremental area budgets
+#Calculation and plot of the amount of ecosystem services protected
+
 library(tidyverse)
 library(sf)
 library(knitr)
-library(terra)
-library(raster)
-library(prioritizr)
-library(units)
 library(patchwork)
-library(mapview)
 library(viridis)
 library(ggthemes)
-library(rnaturalearth)
-library(rgdal)
-library(tmap)
 
 ## Biodiversity and ecosystem services
 
@@ -24,6 +21,7 @@ PUs <- readRDS("RDS/PUs_Splitted.rds")
 PUs_NotSplitted <- readRDS("RDS/PUs_NotSplitted.rds")
 ConsFeatures <- readRDS("RDS/ConsFeatures.rds")
 ConsFeatures_NotSplitted <- readRDS("RDS/ConsFeatures_NotSplitted.rds")
+species <- readRDS("RDS/species.rds")
 
 #Calculate number of biodiversity features that reach the target increasing the area target
 
@@ -38,8 +36,8 @@ targets_reached <- lapply(list(result_BioServ$rank, result_BioServ_WDPA$rank,
 ),
                                function(x) {
   for(i in min(x):(max(x)-1)) {
-    targets_reached <- PUs_NotSplitted %>% 
-      dplyr::select(3:67) %>% #Select only species col
+    targets_reached <- PUs %>%
+      dplyr::select(contains(c(names(species)))) %>% #Select only species col
       bind_cols(rank = x) %>% #Add rank col
       st_drop_geometry() %>% 
       as_tibble() %>% 
@@ -48,9 +46,17 @@ targets_reached <- lapply(list(result_BioServ$rank, result_BioServ_WDPA$rank,
       dplyr::select(!rank) %>% 
       pivot_longer(!selected, names_to = "names", values_to = "Area") %>%
       pivot_wider(names_from = selected, values_from = "Area") %>% 
-      left_join(ConsFeatures_NotSplitted, by = "names") %>% #Add the minimum amount of service 
-      mutate(amount_protected = `TRUE`/(`FALSE` + `TRUE`)) %>% 
+      left_join(ConsFeatures, by = "names") #Add the minimum amount of service 
+   
+    targets_reached <- targets_reached %>%
+      #mutate(names = gsub("_.*","", targets_reached$names)) %>%
+      mutate(amount_protected = `TRUE`/(`FALSE` + `TRUE`)) %>%
       mutate(protected = case_when(amount_protected < amount ~ 0,
+                                   TRUE ~ 1)) %>%
+      #mutate(shortfall = amount - amount_protected)
+      #group_by(names) %>%
+      #summarise(protected = sum(protected)/n()) %>%
+      mutate(protected = case_when(protected < 1 ~ 0,
                                    TRUE ~ 1))
 
   targets_reached_final[[i]] <- targets_reached
@@ -59,21 +65,41 @@ targets_reached <- lapply(list(result_BioServ$rank, result_BioServ_WDPA$rank,
   }
 )
 
+targets_reached_PAs <- PUs %>%
+    dplyr::select(contains(c(names(species))), Protected) %>% #Select only species col
+    st_drop_geometry() %>% 
+    as_tibble() %>% 
+    group_by(Protected) %>% #Group <= i or >= 1
+    summarise(across(everything(), sum, na.rm = TRUE), .groups = 'drop') %>% #sum each column value by group
+    pivot_longer(!Protected, names_to = "names", values_to = "Area") %>%
+    pivot_wider(names_from = Protected, values_from = "Area") %>% 
+    left_join(ConsFeatures, by = "names") #Add the minimum amount of service 
+  
+targets_reached_PAs <- targets_reached_PAs %>% 
+  #mutate(names = gsub("_.*","", targets_reached_PAs$names)) %>% 
+  mutate(amount_protected = `TRUE`/(`FALSE` + `TRUE`)) %>% 
+  mutate(protected = case_when(amount_protected < amount ~ 0,
+                               TRUE ~ 1)) %>% 
+  #group_by(names) %>% 
+  #summarise(protected = sum(protected)/n()) %>% 
+  filter(protected == 1) %>% 
+  nrow()
+
 # Calculate the number of species that reach the targets for incremental rankings
 ntarget_reached_df_BioServ <- tibble(prct = c(0, 100), reached = c(0, 100))
 
 for(i in min(result_BioServ$rank):(max(result_BioServ$rank)-1)) {
   
   ntarget_reached_df_BioServ <- ntarget_reached_df_BioServ %>% 
-    add_row(prct = i, reached = sum(targets_reached[[1]][[i]]$protected)/65*100)
+    add_row(prct = i, reached = sum(targets_reached[[1]][[i]]$protected)/944*100) #65*100
 }
 
-ntarget_reached_df_BioServ_WDPA <- tibble(prct = c(100), reached = c(100))
+ntarget_reached_df_BioServ_WDPA <- tibble(prct = c(13.1, 100), reached = c(targets_reached_PAs/944*100, 100))
 
 for(i in min(result_BioServ_WDPA$rank):(max(result_BioServ_WDPA$rank)-1)) {
   
   ntarget_reached_df_BioServ_WDPA <- ntarget_reached_df_BioServ_WDPA %>% 
-    add_row(prct = i, reached = sum(targets_reached[[2]][[i]]$protected)/65*100)
+    add_row(prct = i, reached = sum(targets_reached[[2]][[i]]$protected)/944*100)
 }
 
 ntarget_reached_df_Bio <- tibble(prct = c(0, 100), reached = c(0, 100))
@@ -81,15 +107,15 @@ ntarget_reached_df_Bio <- tibble(prct = c(0, 100), reached = c(0, 100))
 for(i in min(result_Bio$rank):(max(result_Bio$rank)-1)) {
   
   ntarget_reached_df_Bio <- ntarget_reached_df_Bio %>% 
-    add_row(prct = i, reached = sum(targets_reached[[3]][[i]]$protected)/65*100)
+    add_row(prct = i, reached = sum(targets_reached[[3]][[i]]$protected)/944*100)
 }
 
-ntarget_reached_df_Bio_WDPA <- tibble(prct = c(100), reached = c(100))
+ntarget_reached_df_Bio_WDPA <- tibble(prct = c(13.1, 100), reached = c(targets_reached_PAs/944*100, 100))
 
 for(i in min(result_Bio_WDPA$rank):(max(result_Bio_WDPA$rank)-1)) {
   
   ntarget_reached_df_Bio_WDPA <- ntarget_reached_df_Bio_WDPA %>% 
-    add_row(prct = i, reached = sum(targets_reached[[4]][[i]]$protected)/65*100)
+    add_row(prct = i, reached = sum(targets_reached[[4]][[i]]$protected)/944*100)
 }
 
 ################################################################################
@@ -107,7 +133,7 @@ fplot_targets <- function(ntarget_reached) {
                                 "#93B7BE")) +
     xlab("Mangroves selected in priority areas (%)") +
     ylab("Biodiversity targets reached (%)") +
-    theme_bw(base_size = 8) +
+    theme_bw(base_size = 6.5) +
     theme(legend.position = "none",
           legend.title = element_blank()#,
           #legend.background = element_rect(fill="NA", size=0.5, linetype="solid", colour ="NA")
@@ -136,8 +162,8 @@ ntarget_reached_comparison_WDPA <- ntarget_reached_df_BioServ_WDPA %>%
   rbind(ntarget_reached_df_Bio_WDPA)
 
 #Plot NoWDPA
-fplot_targets(ntarget_reached_comparison_noWDPA) +
-  geom_vline(xintercept = 28, colour = "black", size = 0.3, linetype = "dashed")
+plot_TargetsReached <- fplot_targets(ntarget_reached_comparison_noWDPA) +
+  geom_vline(xintercept = 13.1, colour = "black", size = 0.3, linetype = "dashed")
 
 ggsave("Figures/TargetsReachedSpecies_noWDPA.pdf", 
        dpi = 1000, units = "cm", width = 8, height = 6)
@@ -145,8 +171,8 @@ ggsave("Figures/TargetsReachedSpecies_noWDPA.pdf",
 #Plot WDPA
 #Plot for species
 
-fplot_targets(ntarget_reached_comparison_WDPA) +
-  geom_vline(xintercept = 28, colour = "black", size = 0.3, linetype = "dashed")
+plot_TargetsReached_WDPA <- fplot_targets(ntarget_reached_comparison_WDPA) +
+  geom_vline(xintercept = 13.1, colour = "black", size = 0.3, linetype = "dashed")
 
 ggsave("Figures/TargetsReachedSpecies_WDPA.pdf", 
        dpi = 1000, units = "cm", width = 8, height = 6)
@@ -214,7 +240,7 @@ Increase_EcoServices_WDPA <- Increase_EcoServices_WDPA %>%
   mutate(prct = as.numeric(rownames(.)))
 
 PA_Services <- PA_Services %>% 
-  mutate(prct = 27.99)
+  mutate(prct = 13.1)
 
 Increase_EcoServices_WDPA <- Increase_EcoServices_WDPA %>% 
   rbind(PA_Services) %>% 
@@ -235,7 +261,7 @@ Increase_EcoServices_WDPA_Prct <- Increase_EcoServices_WDPA %>%
             prct = prct)
 
 #Percentage of each biodiversity feature protected for increasing targets
-fPlot_EcoServ_Increase <- function(Increase, x) {
+fPlot_EcoServ_Increase <- function(Increase) {
   
   if(nrow(Increase) < 100) {
     #Transform to long format
@@ -249,7 +275,7 @@ fPlot_EcoServ_Increase <- function(Increase, x) {
     }
   
   #Plot of the increase of the benefit protected for increasing targets
-  ggplot(data = long_Increase, aes(x = prct, y = value, colour = factor(benefit, levels = c("Fishing", "People", "Properties", "Carbon")))) +
+  ggplot(data = long_Increase, aes(x = prct, y = value*100, colour = factor(benefit, levels = c("Fishing", "People", "Properties", "Carbon")))) +
     geom_line(size = 0.5) +
     geom_point(size = 0.5) +
     scale_color_manual(name = "Features",
@@ -259,30 +285,44 @@ fPlot_EcoServ_Increase <- function(Increase, x) {
                                     "Carbon")),
                        values = c("#1E88E5","#FFC107","#D81B60", "#004D40")) +
     xlab("Mangroves selected in priority areas (%)") +
-    ylab("Proportion of service protected") +
-    theme_bw(base_size = 8) +
+    ylab("Service protected (%)") +
+    theme_bw(base_size = 6.5) +
     theme(legend.position = "none",
           legend.title = element_blank()#,
           #legend.background = element_rect(fill="NA", size=0.5, linetype="solid", colour ="NA")
           ) +
     scale_x_continuous(expand = c(0, 0), limits = c(0, 101)) +
-    scale_y_continuous(expand = c(0, 0), limits = c(0, 1.01)) +
+    scale_y_continuous(expand = c(0, 0), limits = c(0, 101)) +
     geom_vline(xintercept = PA_Services$prct, colour = "black", size=0.3, linetype = "dashed")
-  
-    ggsave(paste0("Figures/", x),
-        dpi = 1000, units = "cm", width = 8, height = 6) 
 }
 
 # Ecosystem services and biodiversity
 
-fPlot_EcoServ_Increase(Increase_EcoServices_Prct, "/Increase_Benefits_BioServ.pdf")
+Plot_Increase <- fPlot_EcoServ_Increase(Increase_EcoServices_Prct)
 
 # Ecosystem services and biodiversity WDPA
 
-fPlot_EcoServ_Increase(Increase_EcoServices_WDPA_Prct, "/Increase_Benefits_BioServ_WDPA.pdf")
+Plot_Increase_WDPA <- fPlot_EcoServ_Increase(Increase_EcoServices_WDPA_Prct)
+
+plot_TargetsReached + Plot_Increase +
+  plot_TargetsReached_WDPA + Plot_Increase_WDPA +
+  plot_layout(ncol = 2) +
+  plot_annotation(tag_levels = 'a') +
+  theme(plot.tag = element_text(face = 'bold'))
+
+# plot_TargetsReached_10 + Plot_Increase_10 + 
+#   plot_TargetsReached100 + Plot_Increase100 +
+#   plot_TargetsReached_1000 + Plot_Increase_1000 +
+#   plot_layout(ncol = 2) +
+#   plot_annotation(tag_levels = 'a') +
+#   theme(plot.tag = element_text(face = 'bold'))
+  
+ggsave("Figures/Targets_IncreaseServices.pdf",
+         dpi = 1000, units = "cm", width = 16, height = 18) 
 
 # Save layers
 saveRDS(ntarget_reached_df_BioServ, "RDS/ntarget_reached_df_BioServ.rds")
 saveRDS(ntarget_reached_df_BioServ_WDPA, "RDS/ntarget_reached_df_BioServ_WDPA.rds")
 saveRDS(Increase_EcoServices_Prct, "RDS/Increase_EcoServices_Prct.rds")
 saveRDS(Increase_EcoServices_WDPA_Prct, "RDS/Increase_EcoServices_WDPA_Prct.rds")
+  

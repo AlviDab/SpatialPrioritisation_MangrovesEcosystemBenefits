@@ -4,11 +4,12 @@ library(sf)
 fSelect_WDPA <- function(PUs) {
   cCRS <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
 
-  pa_data <- readRDS("clean_WDPA.rds")
+  pa_data <- readRDS("Data/clean_WDPA.rds")
   GMW <- st_read("Data/GMWValid/GMWValid.shp") %>% 
     st_transform(cCRS)
   
   pa_data <- pa_data %>% 
+    filter(IUCN_CAT %in% c("Ia", "Ib", "II", "III", "IV")) %>% 
     st_transform(cCRS) %>%
     st_make_valid() %>% 
     st_union() %>% 
@@ -26,15 +27,12 @@ fSelect_WDPA <- function(PUs) {
     st_intersects(pa_data)
   
   logi_int <- lengths(PUs_PA) > 0
-  PUs_s <- PUs_s[logi_int == TRUE,]
+  PUs_s <- PUs[logi_int == TRUE,]
   
   #Calculate the intersection between the mangrove of each PU with the protected areas
   PUs_GMW_WDPA <- PUs_s %>% 
     st_intersection(GMW) %>% 
     st_intersection(pa_data)
-  
-  rm(GMW)
-  rm(pa_data)
   
   #Calculate the area of the intersection
   PUs_GMW_WDPA$AreaWDPA <- PUs_GMW_WDPA %>% 
@@ -70,3 +68,7 @@ fSelect_WDPA <- function(PUs) {
     mutate(across(Protected, ~ replace_na(., "FALSE"))) %>% 
     mutate(across(AreaWDPA,  ~ replace_na(., set_units(0, km^2))))
 }
+
+PUs <- PUs %>% 
+  mutate(Protected = as.logical(Protected))
+saveRDS(PUs, "RDS/PUs_Splitted_I_IV.rds")

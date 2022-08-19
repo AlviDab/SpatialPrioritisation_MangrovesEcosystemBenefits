@@ -1,9 +1,12 @@
+#Author: Dabalà Alvise
+
+#Part of the code is adapted from Jeffrey O. Hanson work (see more at: https://prioritizr.net)
+
+#Produce and run all the prioritisations
+
 #Open all the packages needed
 library(tidyverse)
 library(sf)
-library(knitr)
-library(terra)
-library(raster)
 library(prioritizr)
 library(units)
 library(patchwork)
@@ -11,8 +14,6 @@ library(mapview)
 library(viridis)
 library(ggthemes)
 library(rnaturalearth)
-library(rgdal)
-library(tmap)
 
 ############################################
 #I set the various layer for the analysis
@@ -20,39 +21,30 @@ library(tmap)
 #Prepare the files
 
 #Source the different function
-source("Functions/fPUs_GMW.R") #Function to produce the PUs form the shapefile of the mangroves distribution (Thanks to Jason Everett)
-source("Functions/fIntersection_IUCNnearestfeature.R") #Function to intersect the PUs with the species distribution
-source("Functions/fSelect_LockedIn.R") #Function to select the PUs that are locked-in because already protected
-source("Functions/fSelect_PUsArea.R") #Function to select the area of the PUs
-source("Functions/fExtract_CarbonSequestration.R") #Function to select the area of the PUs
-source("Functions/fCalculate_BioTypArea.R") #Function to select the area of the PUs
-source("Functions/fCompareSolutions.R")
-source("Functions/fCompareThreeSolutions.R")
-source("Functions/fPlot_PrioritizrSolution.R")
-source("Functions/fSolve_Prioritizr.R")
 source("Functions/fPlot_GlobalResults.R")
-source("Functions/fIntersect_CoastalSqueeze.R")
-source("Functions/fIntersect_PointShp.R")
-source("Functions/fRemove_NANearestNeighbourg.R")
-source("Functions/fCreate_KappacorrplotFourScenarios.R")
-source("Functions/fSelect_WDPA.R")
-source("Functions/fPlot_Kernel.R")
 source("Functions/fPlot_PUsValues.R")
 source("Functions/fPlot_Rank.R")
-source("Functions/f_PlotCircular.R")
-source("Functions/fPlot_Radar.R")
 
 #Set the projection
 cCRS <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
-
 
 ################################################################################
 
 #Open PUs and large_PUs
 
-PUs <- readRDS("RDS/PUs_SplittedSpecies.rds")
+PUs <- readRDS("RDS/PUs_Splitted.rds")
 PUs_NotSplitted <- readRDS("RDS/PUs_NotSplitted.rds")
 Large_PUs <- readRDS("RDS/Large_PUs_40000.rds")
+
+#Percentage of mangroves protected
+Percentage_protected <- PUs %>% 
+  as_tibble() %>% 
+  group_by(Protected) %>% 
+  summarise(sum(AreaGMWKm)) %>% 
+  dplyr::select(!Protected) %>% 
+  unlist()
+
+Percentage_protected[[2]]/(Percentage_protected[[1]]+Percentage_protected[[2]])*100
 
 #Scaling
 library(scales)
@@ -154,7 +146,8 @@ ConsFeatures_NotSplitted <- PUs_NotSplitted %>%
 #Include the weights
 ConsFeatures <- ConsFeatures %>% 
   mutate(w = 1) %>% 
-  mutate(amount = ifelse(names %in% c("Tot_Carbon_prc", "Fishing_Intensity_prc", "TOT_STOCK_prc", "POP_prc"), 1, 0.3))
+  mutate(amount = ifelse(names %in% c("Tot_Carbon_prc", "Fishing_Intensity_prc", "TOT_STOCK_prc", "POP_prc"), 1, 0.3),
+         w = ifelse(names %in% c("Tot_Carbon_prc", "Fishing_Intensity_prc", "TOT_STOCK_prc", "POP_prc"), 1000, 1))
 
 for(i in 1:length(species)) {
   #Add species targets
@@ -259,7 +252,7 @@ result_BioServ <- result_BioServ %>%
   st_as_sf
 
 # Save the resulting shapefile
-saveRDS(result_BioServ, paste0("RDS/result_BioServ.rds"))
+saveRDS(result_BioServ, paste0("RDS/result_BioServ_1000.rds"))
 
 # World map
 plot_global_map <- fPlot_Rank(result_BioServ, Large_PUs, palet = "viridis") 
@@ -280,10 +273,10 @@ startTime <- Sys.time()
 
 PUs$LockedIn <- PUs$Protected
 
-for(x in 28:100) {
+for(x in 14:100) {
   
-  if(x != 28) {PUs$LockedIn <- as.logical(sol_AreaTarget$solution_1)} else
-  {PUs$LockedIn <- PUs$Protected}
+  if(x != 14) {PUs$LockedIn <- as.logical(sol_AreaTarget$solution_1)} else
+  {PUs$LockedIn <- as.logical(PUs$Protected)}
   
   p_AreaTarget <- problem(PUs, features = ConsFeatures$names, cost_column = "AreaGMWKm") %>% #Area Target
     add_min_shortfall_objective(sum(PUs$AreaGMWKm*(x/100))) %>% #Maximum cost is 30% of the total area
@@ -296,7 +289,7 @@ for(x in 28:100) {
   
   sol_AreaTarget <- solve(p_AreaTarget)
   
-  list_sol_AreaTarget_BioServ_WDPA[[x-27]] <- list(p_AreaTarget, sol_AreaTarget)
+  list_sol_AreaTarget_BioServ_WDPA[[x-13]] <- list(p_AreaTarget, sol_AreaTarget)
 }
 
 endTime <- Sys.time()
@@ -345,12 +338,12 @@ result_BioServ_WDPA <- result_BioServ_WDPA %>%
 saveRDS(result_BioServ_WDPA, "RDS/result_BioServ_WDPA.rds")
 saveRDS(result_BioServ_WDPA_rmPA, "RDS/result_BioServ_WDPA_rmPA.rds")
 
-plot_global_map <- fPlot_Rank(result_BioServ_WDPA_rmPA, Large_PUs, palet = "viridis",
-                              brk = c(28, 50, 75, 100), lm = c(28, 100)) 
+plot_global_map <- fPlot_Rank(result_BioServ_WDPA_rmPA, Large_PUs, palet = "plasma",
+                              brk = c(14, 25, 50, 75, 100), lm = c(14, 100)) 
 ggsave(plot = plot_global_map, paste0("Figures/Rank_Global_40000_WDPA.pdf"),
        dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
 
-plot_results <- fPlot_PUsValues(result_BioServ_WDPA_rmPA, "rank", scale_fill = "viridis") 
+plot_results <- fPlot_PUsValues(result_BioServ_WDPA_rmPA, "rank", scale_fill = "plasma") 
 ggsave(plot = plot_results, paste0("Figures/Rank_Global_WDPA.svg"),
        dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
 
@@ -440,14 +433,14 @@ result_Bio <- result_Bio %>%
 
 # Save the resulting shapefile
 saveRDS(result_Bio, "RDS/result_Bio.rds")
-
-plot_global_map <- fPlot_Rank(result_Bio, Large_PUs, palet = "viridis") 
-ggsave(plot = plot_global_map, "Figures/Rank_Global_Bio_40000.svg",
-       dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
-
-plot_results <- fPlot_PUsValues(result_Bio, "rank", scale_fill = "viridis") 
-ggsave(plot = plot_results, "Figures/Rank_Global_Bio.svg",
-       dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
+# 
+# plot_global_map <- fPlot_Rank(result_Bio, Large_PUs, palet = "viridis") 
+# ggsave(plot = plot_global_map, "Figures/Rank_Global_Bio_40000.svg",
+#        dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
+# 
+# plot_results <- fPlot_PUsValues(result_Bio, "rank", scale_fill = "viridis") 
+# ggsave(plot = plot_results, "Figures/Rank_Global_Bio.svg",
+#        dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
 
 ################################################################################
 # Optimisation biodiversity building on already protected areas
@@ -459,9 +452,9 @@ startTime <- Sys.time()
 
 PUs$LockedIn <- PUs$Protected
 
-for(x in 28:100) {
+for(x in 14:100) {
   
-  if(x != 28) {PUs$LockedIn <- as.logical(sol_AreaTarget$solution_1)} else
+  if(x != 14) {PUs$LockedIn <- as.logical(sol_AreaTarget$solution_1)} else
   {PUs$LockedIn <- PUs$Protected}
   
   p_AreaTarget <- problem(PUs, features = ConsFeatures$names, cost_column = "AreaGMWKm") %>% #Area Target
@@ -475,7 +468,7 @@ for(x in 28:100) {
   
   sol_AreaTarget <- solve(p_AreaTarget)
   
-  list_sol_AreaTarget_Bio_WDPA[[x-27]] <- list(p_AreaTarget, sol_AreaTarget)
+  list_sol_AreaTarget_Bio_WDPA[[x-13]] <- list(p_AreaTarget, sol_AreaTarget)
 }
 
 endTime <- Sys.time()
@@ -522,41 +515,3 @@ result_Bio_WDPA <- result_Bio_WDPA %>%
 
 # Save the resulting shapefile
 saveRDS(result_Bio_WDPA, paste0("RDS/result_Bio_WDPA.rds"))
-
-################################################################################
-# Targets reached
-################################################################################
-
-#Amount of the target reached for the benefits
-
-# Optimisation biodiversity and ecosystem services
-list_targets_reached_BioServ <- lapply(list_sol_AreaTarget_BioServ, function(x) {
-  sol <- x[[2]] %>% 
-    dplyr::select(solution_1) 
-  
-  targets_reached <- eval_target_coverage_summary(x[[1]], sol)
-})
-
-# Optimisation biodiversity 
-list_targets_reached_Bio <- lapply(list_sol_AreaTarget_Bio, function(x) {
-  sol <- x[[2]] %>% 
-    dplyr::select(solution_1) 
-  
-  targets_reached <- eval_target_coverage_summary(x[[1]], sol)
-})
-
-# Optimisation biodiversity and ecosystem services
-list_targets_reached_BioServ_WDPA <- lapply(list_sol_AreaTarget_BioServ_WDPA, function(x) {
-  sol <- x[[2]] %>% 
-    dplyr::select(solution_1) 
-  
-  targets_reached <- eval_target_coverage_summary(x[[1]], sol)
-})
-
-# Optimisation biodiversity 
-list_targets_reached_Bio_WDPA <- lapply(list_sol_AreaTarget_Bio_WDPA, function(x) {
-  sol <- x[[2]] %>% 
-    dplyr::select(solution_1) 
-  
-  targets_reached <- eval_target_coverage_summary(x[[1]], sol)
-})

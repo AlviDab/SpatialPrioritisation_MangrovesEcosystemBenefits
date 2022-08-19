@@ -1,43 +1,65 @@
-#14/04/2022
+#Author: Alvise Dabalà
+
+#Code to produce the plots of the data in input
+
+#Open all the packages needed
+library(tidyverse)
+library(sf)
+library(prioritizr)
+library(patchwork)
+library(viridis)
+library(ggthemes)
+library(rnaturalearth)
 
 #Here I produce the graphs that report the values of the ecosystem benefits and
 #biodiversity benefits for each planning unit
 
+cCRS <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+
 source("Functions/fPlot_PUsValues.R")
+
+species <- readRDS("RDS/species.rds")
+PUs <- readRDS("RDS/PUs_Splitted.rds")
+PUs_NotSplitted <- readRDS("RDS/PUs_NotSplitted.rds")
+Large_PUs <- readRDS("RDS/Large_PUs_40000.rds")
+species <- readRDS("RDS/species.rds")
+
+cCRS <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+
 
 #Plot of fishing intensity
 plot_fish <- fPlot_PUsValues(PUs, "Fishing_Intensity", logarithmic = TRUE, scale_fill = "mako")
-ggsave(filename = "Figures/Mollweide/Layers_GlobalMap/Fishing_Intensity_log.svg", plot = plot_fish, width = 49, height = 25)
+ggsave(filename = "Figures/Fishing_Intensity_log.svg", plot = plot_fish, width = 49, height = 25)
 
 #Plot of properites protected
 plot_properties <- fPlot_PUsValues(PUs, "TOT_STOCK", logarithmic = TRUE, scale_fill = "cividis")
-ggsave(filename = "Figures/Mollweide/Layers_GlobalMap/Properties_log.svg", plot = plot_properties, width = 49, height = 25)
+ggsave(filename = "Figures/Properties_log.svg", plot = plot_properties, width = 49, height = 25)
 
 #Plot of population protected
 plot_population <- fPlot_PUsValues(PUs, "POP", logarithmic = TRUE, scale_fill = "magma")
-ggsave(filename = "Figures/Mollweide/Layers_GlobalMap/Population_log.svg", plot = plot_population, width = 49, height = 25)
+ggsave(filename = "Figures/Population_log.svg", plot = plot_population, width = 49, height = 25)
 
 #Plot of carbon stored
 plot_carbon <- fPlot_PUsValues(PUs, "Tot_Carbon", logarithmic = FALSE, scale_fill = "viridis")
-ggsave(filename = "Figures/Mollweide/Layers_GlobalMap/Carbon.svg", plot = plot_carbon, width = 49, height = 25)
+ggsave(filename = "Figures/Carbon.svg", plot = plot_carbon, width = 49, height = 25)
 
 #Aggregate at 40000 km2 
 
 #Plot of fishing intensity
 plot_fish <- fPlot_PUsValues(PUs, "Fishing_Intensity", logarithmic = TRUE, large_PUs = TRUE, scale_fill = "mako")
-ggsave(filename = "Figures/Mollweide/Layers_GlobalMap/Fishing_Intensity_log_40000.svg", plot = plot_fish, width = 13, height = 6, dpi = 1000, units = "cm")
+ggsave(filename = "Figures/Fishing_Intensity_log_40000.svg", plot = plot_fish, width = 13, height = 6, dpi = 1000, units = "cm")
 
 #Plot of properites protected
 plot_properties <- fPlot_PUsValues(PUs, "TOT_STOCK", logarithmic = TRUE, large_PUs = TRUE, scale_fill = "cividis")
-ggsave(filename = "Figures/Mollweide/Layers_GlobalMap/Properties_log_40000.svg", plot = plot_properties, width = 13, height = 6, dpi = 1000, units = "cm")
+ggsave(filename = "Figures/Properties_log_40000.svg", plot = plot_properties, width = 13, height = 6, dpi = 1000, units = "cm")
 
 #Plot of population protected
 plot_population <- fPlot_PUsValues(PUs, "POP", logarithmic = TRUE, large_PUs = TRUE, scale_fill = "magma")
-ggsave(filename = "Figures/Mollweide/Layers_GlobalMap/Population_log_40000.svg", plot = plot_population, width = 13, height = 6, dpi = 1000, units = "cm")
+ggsave(filename = "Figures/Population_log_40000.svg", plot = plot_population, width = 13, height = 6, dpi = 1000, units = "cm")
 
 #Plot of carbon stored
 plot_carbon <- fPlot_PUsValues(PUs, "Tot_Carbon", logarithmic = FALSE, large_PUs = TRUE, scale_fill = "viridis")
-ggsave(filename = "Figures/Mollweide/Layers_GlobalMap/Carbon_40000.svg", plot = plot_carbon, width = 13, height = 6, dpi = 1000, units = "cm")
+ggsave(filename = "Figures/Carbon_40000.svg", plot = plot_carbon, width = 13, height = 6, dpi = 1000, units = "cm")
 
 #Calculate number of species
 PUs_Species <- PUs_NotSplitted %>%
@@ -53,30 +75,31 @@ PUs_Species <- PUs_NotSplitted %>%
 
 #Plot number of species per planning unit
 plot_species <- fPlot_PUsValues(PUs_Species, "tot", scale_fill = "inferno")
-ggsave(filename = "Figures/Mollweide/Layers_GlobalMap/Species.pdf", plot = plot_species, width = 49, height = 25)
+ggsave(filename = "Figures/Species.pdf", plot = plot_species, width = 49, height = 25)
 
 #Plot number of species per planning unit
 plot_species <- fPlot_PUsValues(PUs_Species, "tot", logarithmic = FALSE, large_PUs = TRUE, scale_fill = "inferno")
-ggsave(filename = "Figures/Mollweide/Layers_GlobalMap/Species_40000.svg", plot = plot_species, width = 13, height = 6, dpi = 1000, units = "cm")
+ggsave(filename = "Figures/Species_40000.svg", plot = plot_species, width = 13, height = 6, dpi = 1000, units = "cm")
 
 #Distribution of mangroves
-
-
 world_map <- ne_countries(scale = "large", returnclass = "sf") %>%
    st_transform(crs = cCRS) %>% #I project the crs of the GMW to meters
    st_make_valid() #I make the shapefile valid
 
 Plot_GMW <- ggplot() +
   geom_sf(data = world_map, colour ="grey50", fill = "grey70", size = 0.1) +
-  geom_sf(data = PUs, fill = "#6DA34D", colour = "#6DA34D", size = 0.1) +
+  geom_sf(data = PUs, fill = "#006400", colour = "#006400", size = 0.1) +
   theme_bw() +
   theme(axis.title.x = element_blank(),
         axis.title.y = element_blank())
 
-ggsave(plot = Plot_GMW, "Figures/Mollweide/Minimum_Shortfall/IncreaseTarget/GMW.svg",
+ggsave(plot = Plot_GMW, "Figures/GMW.svg",
        dpi = 300, width = 15, height = 8, units = "cm", limitsize = FALSE)
 
-WDPA <- readRDS("WDPA_union.rds")
+WDPA <- readRDS("Data/clean_WDPA.rds") %>% 
+  filter(IUCN_CAT %in% c("Ia", "Ib", "II", "III", "IV")) %>% 
+  st_transform(cCRS) %>%
+  st_make_valid()
 
 #Plot the PAs map
 Plot_WDPA <- ggplot() +
@@ -87,8 +110,8 @@ Plot_WDPA <- ggplot() +
         axis.title.y = element_blank(),
         rect = element_rect(fill = "transparent"))
 
-ggsave(plot = Plot_WDPA, "Figures/Mollweide_splitted/Minimum_Shortfall/IncreaseTarget/WDPA.svg", 
-       dpi = 1000, width = 18, height = 10, units = "cm", limitsize = FALSE)
+ggsave(plot = Plot_WDPA, "Figures/WDPA.svg", 
+       dpi = 1000, width = 17, height = 10, units = "cm", limitsize = FALSE)
 
 # Plot_WDPA <- ggplot() +
 #   geom_sf(data = world_map, colour ="grey50", fill = "grey70", size = 0.1) +

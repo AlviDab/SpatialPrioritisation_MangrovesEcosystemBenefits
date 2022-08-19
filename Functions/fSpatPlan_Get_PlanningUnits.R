@@ -13,7 +13,7 @@
 # Written: 15 December 2020
 # Updated: 11th February 2021
 
-fCreate_PlanningUnits <- function(Bndry, CellArea, Shape){
+fSpatPlan_Get_PlanningUnits <- function(Bndry, LandMass, CellArea, Shape, inverse = TRUE){
   
   if(Shape %in% c("hexagon", "Hexagon")){
     sq <- FALSE
@@ -38,12 +38,26 @@ fCreate_PlanningUnits <- function(Bndry, CellArea, Shape){
                round(as.numeric(range(units::set_units(st_area(PUs), "km^2")))[2])," km2")) # Check area
   
   # First get all the PUs partially/wholly within the planning region
-  logi_Reg <- PUs %>%
+  logi_Reg <- st_centroid(PUs) %>%
     st_intersects(Bndry) %>%
     lengths > 0 # Get logical vector instead of sparse geometry binary
   
+  PUs <- PUs[logi_Reg, ] # Get TRUE
   
-  PUs <- PUs[logi_Reg == TRUE, ]
+  # Second, get all the pu's with < 50 % area on land (approximated from the centroid)
+  # logi_Ocean <- st_centroid(PUs) %>%
+  #   st_within(st_union(LandMass)) %>%
+  #   lengths > 0 # Get logical vector instead of sparse geometry binary
+
+  logi_Ocean <- st_centroid(PUs) %>%
+    st_intersects(LandMass) %>%
+    lengths > 0 # Get logical vector instead of sparse geometry binary
   
+  if(inverse == TRUE){
+    PUs <- PUs[!logi_Ocean, ] # Get FALSE
+  }
+  else{
+    PUs <- PUs[logi_Ocean==TRUE, ] # Get TRUE
+  }
   return(PUs)
 }

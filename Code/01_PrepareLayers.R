@@ -1,6 +1,7 @@
-#Alvise Dabalà
-#Global mangroves conservation MPAs network
+#Author: Dabalà Alvise
 #18/01/2022
+
+#Code to prepare all the layers before the prioritisation
 
 #Open all the packages needed
 library(tidyverse)
@@ -24,7 +25,7 @@ library(tmap)
 #1.1. Prepare the files
 
 #1.1.1. Source the different function
-source("Functions/fPUs_GMW.R") #Function to produce the PUs form the shapefile of the mangroves distribution
+source("Functions/fCreate_PUs.R") #Function to produce the PUs form the shapefile of the mangroves distribution
 source("Functions/fIntersection_IUCNnearestfeature.R") #Function to intersect the PUs with the species distribution
 source("Functions/fSelect_PUsArea.R") #Function to select the area of the PUs
 source("Functions/fExtract_CarbonSequestration.R") #Function to select the area of the PUs
@@ -32,6 +33,7 @@ source("Functions/fCalculate_BioTypArea.R") #Function to select the area of the 
 source("Functions/fIntersect_PointShp.R")
 source("Functions/fRemove_NANearestNeighbourg.R")
 source("Functions/fSelect_WDPA.R")
+source("Functions/fRemoveNA_Coast.R")
 
 #Set the projection
 cCRS <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
@@ -92,13 +94,9 @@ Coast <- st_read(Coasttxt) %>% #Read the shapefile
 #2. Production of the planning units
 
 #2.1.1 Produce the planning units
-PUs <- fPUs_GMW(GMW, 400) #Produce the planning units for the GMW selected (the number is the area in km^2)
+PUs <- fCreate_PUs(400) #Produce the planning units for the GMW selected (the number is the area in km^2)
   
-Large_PUs <- fPUs_GMW(GMW, 40000) #Produce planning units for the aggregated results
-
-PUs <- PUs %>%
-  mutate(ID = as.numeric(rownames(PUs))) %>% #Add a new column called ID with rownames as value for each row.
-  slice(1:9110)
+Large_PUs <- fCreate_PUs(40000) #Produce planning units for the aggregated results
   
 #2.2 Calculation of GMW area coverage of each PU and plot an histogram of the 
 #    distribution of the areas
@@ -134,17 +132,19 @@ PUs <- fCalc_BioTypArea() #Calculate the area of each biophysical typology in a 
 #2.4 Set ecosystem services layers
 
 #2.4.1 Fisheries benefits
-PUs <- PUs %>%
+#I remove the planning unit that create pproblems when reprojected
+PUs_Fish <- PUs %>%
+  mutate(ID = as.numeric(rownames(PUs))) %>% #Add a new column called ID with rownames as value for each row.
+  slice(1:9110)
+
+PUs_Fish <- PUs_Fish %>%
   st_transform(crs = "+proj=cea +lat_ts=0 +lon_0=-160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs") %>% #I project the PUs to the crs of fisheries raster
   arrange(ID)
 
-FishCost <- exact_extract(Fish, PUs, c('mean')) %>% #I extract the data of the Fisheries 
+FishCost <- exact_extract(Fish, PUs_Fish, c('mean')) %>% #I extract the data of the Fisheries 
   tibble() %>% 
-  mutate(ID = PUs$ID) %>% #I group by ID
+  mutate(ID = PUs_Fish$ID) %>% #I group by ID
   rename(Fishing_Intensity = 1)
-
-PUs <- PUs %>%
-  st_transform(crs = cCRS) #I project the PUs to Mollweide
 
 PUs <- PUs %>%
   left_join(FishCost, by = "ID") #Column of the fishing intensity layer

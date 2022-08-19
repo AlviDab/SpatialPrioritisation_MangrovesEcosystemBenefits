@@ -1,4 +1,6 @@
-## Works perfectly
+# Author: Alvise Dabalà
+# Calculate the area of biophysical typology in each planning unit
+# Does not require any variable in input
 
 fCalc_BioTypArea <- function() {
   
