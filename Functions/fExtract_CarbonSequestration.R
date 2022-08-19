@@ -1,3 +1,6 @@
+#Author: Alvise Dabalà
+#Function to extract AGB and soil carbon data
+
 Extract_Carbon <- function(x) {
 
 library(future.apply)

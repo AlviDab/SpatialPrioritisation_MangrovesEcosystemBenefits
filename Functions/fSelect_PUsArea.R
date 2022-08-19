@@ -1,3 +1,10 @@
+#Author: Alvise Dabalà
+#Function to calculate the area of mangroves in each planning unit
+
+#Input: 
+# - PUs <sf>: planning units
+# → GMW <sf>: shapefile of mangroves distribution
+
 fSelect_PUsArea <- function(PUs, GMW) {
   
   PUsInt <- st_intersection(PUs, GMW)#Make an intersection between the PUs and GMW data

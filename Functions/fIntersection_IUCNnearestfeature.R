@@ -1,3 +1,10 @@
+#Author: Alvise Dabalà
+#Function to intersect IUCN species distribution with the planning units
+
+#Inputs: 
+# - PUs: planning units shapefile
+# - IUCN: species distribution shapefile
+
 fIntersection_IUCNnearestfeature <- function(PUs, IUCN) {
  
   #I project the PUs

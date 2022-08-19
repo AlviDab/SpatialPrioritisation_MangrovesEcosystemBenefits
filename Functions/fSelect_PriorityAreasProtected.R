@@ -1,5 +1,9 @@
+#Author: Alvise Dabalà
 #Function to calculate how much of the areas are protected by country, region and in total
-#n is the rank for which we want to analyse the result
+
+#Input: 
+#- result <sf>: result of the prioritization with a column reporting the rank of the results
+#- n <numeric>: is the rank for which we want to analyse the result
 
 f_PriorityAreasProtected <- function(result, n) {
   

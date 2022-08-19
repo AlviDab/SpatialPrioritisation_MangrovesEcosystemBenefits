@@ -1,4 +1,15 @@
-fPlot_PUsValues <- function(x, col_name, scale_fill = "turbo", logarithmic = FALSE, WDPA = FALSE, large_PUs = FALSE) {
+#Author: Dabalà Alvise
+#Function to plot the values reported in a planning unit
+#Input: 
+# - x <sf>: planning units shapefile;
+# - col_name <string>: name of the column that you want to plot the values of;
+# - scale_fill <string>: viridis category used, default is "turbo";
+# - logarithmic <logical>:if true, data are transformed to log10 scale;
+# - WDPA <logical>: if true, already protected areas are filled with a different colour;
+# - large_PUs <logical>: if true, data are aggregated at large_PUs scale
+
+fPlot_PUsValues <- function(x, col_name, scale_fill = "turbo", logarithmic = FALSE, 
+                            WDPA = FALSE, large_PUs = FALSE) {
   world_map <- ne_countries(scale = "large", returnclass = "sf") %>%
     st_transform(crs = cCRS) %>% #I project the crs of the GMW to meters
     st_make_valid() #I make the shapefile valid

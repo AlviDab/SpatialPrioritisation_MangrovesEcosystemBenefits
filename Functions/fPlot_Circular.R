@@ -7,11 +7,10 @@
 # ----- Functions for creating circular barplot -----
 # Inputs:
 # 1. df: data frame should have the following column names: feature, value, group
-# feature: feature bars
-# value: value plotted in the y-axis
-# group: grouping factors
-# 2. legend_color: vector list of colors; should have the group names and their corresponding colors
-# 3. legend_list: list of groups/legends of groups
+# 2. ext_val: value of each tick of the y-axis
+# 3. colr: vector of colors you want to use;
+# 4. lab: labels of the y-axis ticks:
+# 5. lvl: name on the groups 
 
 fPlot_Circular <- function(df, ext_val, colr, lab, lvl) {
   library(tidyverse)

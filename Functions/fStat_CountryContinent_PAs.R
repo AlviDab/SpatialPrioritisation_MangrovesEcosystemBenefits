@@ -1,3 +1,10 @@
+#Author: Alvise Dabalà
+#Function to calculate statistic by country and by region of the planning units selected
+#when adding protection to the already protected areas
+
+#Input: 
+# - PUs <sf>: planning units
+
 ################################################################################
 ###Statistics by country and region
 ##Priority areas

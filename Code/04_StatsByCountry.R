@@ -6,12 +6,10 @@
 #Open all the packages needed
 library(tidyverse)
 library(sf)
-library(knitr)
 library(prioritizr)
 library(patchwork)
 library(viridis)
 library(ggthemes)
-library(rgdal)
 library(openxlsx)
 library(xlsx)
 

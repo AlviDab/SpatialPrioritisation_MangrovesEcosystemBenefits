@@ -1,5 +1,9 @@
 # 10-03-2022
-## Function to subsitute NAs values in a column with the value of the nearest PU
+## Function to substitute NAs values in a column with the value of the nearest PU
+
+#Input: 
+# - x <sf>: planning units
+# - colName <string>: name of the column we want to fill NAs values 
 
 fNN_x <- function(x, colName) {
   x <- x %>% 

@@ -1,6 +1,12 @@
-#Barplots
+#Author: Alvise Dabalà
+#Function to produce the barplots
 
-fplot_BarPlots <- function(PUs, sol1, sol2, path, list_sol = FALSE) {
+#Inputs:
+# - PUs: planning units shapefile 
+# - sol1: planning units selected when expanding protection to 30%
+# - sol2: planning units selected when expanding protection to 50%
+
+fplot_BarPlots <- function(PUs, sol1, sol2) {
   
   list_titles <- list("Cost layer: fishing Intensity", "Cost layer: properties protected", "Cost layer: population protected", "Cost layer: carbon stored")
   list_cost <- list("Fishing_Intensity", "TOT_STOCK", "POP", "Tot_Carbon")
@@ -10,7 +16,7 @@ fplot_BarPlots <- function(PUs, sol1, sol2, path, list_sol = FALSE) {
                     expression(Mean~population~protected~(people~km^{-2})), 
                     expression(Mean~carbon~stored~(Mg~km^{-2})))
   
-  kernel_plots <- lapply(1:4, function(x) {
+  barplots <- lapply(1:4, function(x) {
     
     In_PA <- PUs %>%
       filter(Protected == 1) %>%
@@ -133,6 +139,6 @@ fplot_BarPlots <- function(PUs, sol1, sol2, path, list_sol = FALSE) {
   }
   )
   
-  return(kernel_plots)
+  return(barplots)
 }
 

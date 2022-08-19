@@ -1,5 +1,7 @@
- #Function to produce a radar plot
- #x report values of ecosystem services
+#Author: Alvise Dabalà
+#Function to produce a radar plot
+#Input: 
+# -x: dataframe that values of ecosystem services
 
 fPlot_Radar <- function(x) {
   library(ggradar)

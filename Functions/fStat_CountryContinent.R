@@ -1,3 +1,11 @@
+#Author: Alvise Dabalà
+#Function to calculate statistic by country and by region of the planning units selected
+#as priority areas
+
+#Input: 
+# - result <sf>: result of the prioritization
+# - n <numeric>: maximum rank we consider
+
 ################################################################################
 ###Statistics by country and region
 ##Priority areas

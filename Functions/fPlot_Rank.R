@@ -2,6 +2,13 @@
 #2022-05-17
 
 #Function to plot the percent of PU selected using bigger PUs
+#Inputs: 
+# - sol_prtzr <sf>: result of prioritizr prioritisation;
+# - Large_PUs <sf>: larger PUs (40000 km²);
+# - limits <vector>: limits of the plot → to zoom in a smaller area (requires xmin, xmax, ymin, ymax)
+# - palet <string>: viridis palette you want to use in the graph;
+# - brk <vector>: vector of all the breaks you want inn the legend value;
+# - lm <vector>: limits of the legend
 
 fPlot_Rank <- function(sol_prtzr, Large_PUs = NULL, limits = NULL, palet = "viridis",
                        brk = c(1, 25, 50, 75, 100), lm = c(1, 100)) {
