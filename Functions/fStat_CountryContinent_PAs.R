@@ -16,7 +16,8 @@ fStat_CountryContinent_PAs <- function(PUs) { ##Percentage of mangroves in prior
   total_country <- PUs %>% 
     as_tibble() %>% 
     group_by(country) %>% 
-    summarise(total_area = sum(AreaGMWKm))
+    summarise(total_area = sum(AreaGMWKm)) %>% #Total mangrove area by country
+    mutate(percentage_area = total_area/sum(total_area)*100) #percentage of mangrove area by continent
   
   ## by continent
   
@@ -24,8 +25,8 @@ fStat_CountryContinent_PAs <- function(PUs) { ##Percentage of mangroves in prior
   total_continent <- PUs %>% 
     as_tibble() %>% 
     group_by(continent) %>% 
-    summarise(total_area = sum(AreaGMWKm)) %>%
-    mutate(percentage_area = total_area/sum(total_area)*100)
+    summarise(total_area = sum(AreaGMWKm)) %>% #total mangrove area by continent
+    mutate(percentage_area = total_area/sum(total_area)*100) #percentage of mangrove area by continent
   
   ################################################################################
   ### Mangroves values
@@ -33,7 +34,7 @@ fStat_CountryContinent_PAs <- function(PUs) { ##Percentage of mangroves in prior
   ##Ecosystem services per square km at country scale → what are the countries selected for higher services?
   services_country <- PUs %>% 
     as_tibble %>%
-    filter(Protected == TRUE) %>% 
+    filter(Protected == TRUE) %>% #select only protected areas
     group_by(country) %>% 
     summarise(n_PUs = n(),
               Fishing = sum(Fishing_Intensity*AreaGMWKm), 
@@ -47,7 +48,7 @@ fStat_CountryContinent_PAs <- function(PUs) { ##Percentage of mangroves in prior
   
   services_continent <- PUs %>% 
     as_tibble %>% 
-    filter(Protected == TRUE) %>% 
+    filter(Protected == TRUE) %>% #select only protected areas
     group_by(continent) %>% 
     summarise(n_PUs = n(),
               Fishing = sum(Fishing_Intensity*AreaGMWKm), 
@@ -82,16 +83,16 @@ fStat_CountryContinent_PAs <- function(PUs) { ##Percentage of mangroves in prior
   continent_stat <- continent_stat %>% 
     left_join(n_species_by_continent)
   
-  ## Percentage of total mangroves protected by country
+  ## Percentage of total mangroves area protected by country
   protection_country <- PUs %>% 
     as_tibble() %>% 
-    filter(Protected == TRUE) %>% 
+    filter(Protected == TRUE) %>% #already protected
     group_by(country) %>% 
-    summarise(tot_mangrove_protected = sum(AreaGMWKm))
+    summarise(tot_mangrove_protected = sum(AreaGMWKm)) #total mangrove area protected
   
   country_stat <- country_stat %>% 
     left_join(protection_country, by = 'country') %>% 
-    mutate(prct_tot_mangrove_protected = tot_mangrove_protected/total_area*100)
+    mutate(prct_tot_mangrove_protected = tot_mangrove_protected/total_area*100) #percentage of the toal mangrove area that is currently protected
   
   ## Percentage of total mangroves protected by continent
   protection_continent <- PUs %>% 
@@ -102,7 +103,7 @@ fStat_CountryContinent_PAs <- function(PUs) { ##Percentage of mangroves in prior
   
   continent_stat <- continent_stat %>% 
     left_join(protection_continent, by = 'continent') %>% 
-    mutate(prct_tot_mangrove_protected = tot_mangrove_protected/total_area*100)
+    mutate(prct_tot_mangrove_protected = tot_mangrove_protected/total_area*100) #Percentage of total mangrove already protected
   
   list(country_stat, continent_stat)
 }
