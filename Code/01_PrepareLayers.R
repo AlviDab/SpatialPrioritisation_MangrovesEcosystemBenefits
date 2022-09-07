@@ -98,7 +98,7 @@ PUs <- fCreate_PUs(400) #Produce the planning units for the GMW selected (the nu
   
 Large_PUs <- fCreate_PUs(40000) #Produce planning units for the aggregated results
   
-#2.2 Calculation of GMW area coverage of each PU and plot an histogram of the 
+#2.2 Calculation of GMW area coverage of each PU
 #    distribution of the areas
 PUs <- fSelect_PUsArea(PUs, GMW) #The number is the percentage of area of mangrove
                                  #in the PUs to define that as a PUs
@@ -175,7 +175,7 @@ PUs <- PUs %>%
 PUs <- PUs %>% 
   fNN_Coast_x()
 
-PUs$Tot_Carbon <- PUs$soil_carbon + PUs$biomass_carbon
+PUs$Tot_Carbon <- (PUs$soil_carbon + PUs$biomass_carbon)*100 #Transform from Mg C ha^-1 to Mg C Km²
 
 #####################################
 #3. WDPA, countries and continents 

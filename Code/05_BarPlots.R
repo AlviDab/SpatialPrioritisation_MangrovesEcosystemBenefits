@@ -26,27 +26,29 @@ result_Bio_WDPA <- readRDS("RDS/result_Bio_WDPA.rds")
 
 #Solutions 30% and 50%
 sol_ConsFeat_30_WDPA <- result_BioServ_WDPA %>% 
-  filter(rank <= 30) %>% 
-  filter(Protected != 1)
+  filter(rank <= 30) %>% #Select results with rank <30
+  filter(Protected == 0) #Filter the PUs that are not protected
 
 sol_ConsFeat_30_Bio_WDPA <- result_Bio_WDPA %>% 
-  filter(rank <= 30) %>% 
-  filter(Protected != 1)
+  filter(rank <= 30) %>% #Select results with rank <30
+  filter(Protected == 0) #Filter the PUs that are not protected
 
 sol_ConsFeat_50_WDPA <- result_BioServ_WDPA %>% 
-  filter(rank > 30 & rank <= 50) %>% 
-  filter(Protected != 1)
+  filter(rank > 30 & rank <= 50) %>% #select results with rank >30 and <=50
+  filter(Protected == 0)
 
 sol_ConsFeat_50_Bio_WDPA <- result_Bio_WDPA %>% 
-  filter(rank > 30 & rank <= 50) %>% 
-  filter(Protected != 1)
+  filter(rank > 30 & rank <= 50) %>% #select results with rank >30 and <=50
+  filter(Protected == 0)
 
 # Barplot
 Plot30_WDPA <- fplot_BarPlots(PUs, sol_ConsFeat_30_WDPA, sol_ConsFeat_30_Bio_WDPA)
 Plot50_WDPA <- fplot_BarPlots(PUs, sol_ConsFeat_50_WDPA, sol_ConsFeat_50_Bio_WDPA)
 
-Plot30_WDPA[[2]] + Plot50_WDPA[[2]] + Plot30_WDPA[[3]] + Plot50_WDPA[[3]] +
-  Plot30_WDPA[[4]] + Plot50_WDPA[[4]] + Plot30_WDPA[[1]] + Plot50_WDPA[[1]] +
+Plot30_WDPA[[2]] + #Plot50_WDPA[[2]] + 
+  Plot30_WDPA[[3]] + #Plot50_WDPA[[3]] +
+  Plot30_WDPA[[4]] + #Plot50_WDPA[[4]] + 
+  Plot30_WDPA[[1]] + #Plot50_WDPA[[1]] +
   plot_layout(ncol = 2) +
   plot_annotation(tag_levels = 'a') +
   theme(plot.tag = element_text(face = 'bold'))

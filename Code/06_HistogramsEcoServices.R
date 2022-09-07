@@ -30,27 +30,27 @@ source("Functions/fPlot_Radar.r")
 fish_hist <- ggplot(data = PUs, aes(x = log10(Fishing_Intensity + 1))) +
   geom_histogram(colour = "black", binwidth = 0.5, fill = "#1363DF") +
   theme_bw(base_size = 8) +
-  xlab(expression(Fishing~Intensity~Log^{10}(fisher~days~km^{-2}~year^{-1})))
+  xlab(expression(Fishing~Intensity~Log[10](fisher~days~km^{-2}~year^{-1})))
 
 prop_hist <- ggplot(data = PUs, aes(x = log(TOT_STOCK + 1))) +
   geom_histogram(colour = "black", binwidth = 0.5, fill = "#EB5C90") +
   theme_bw(base_size = 8) +
-  xlab(expression(Properties~protected~Log^{10}("$"~km^{-2})))
+  xlab(expression(Properties~protected~Log[10]("$"~km^{-2})))
   
 pop_hist <- ggplot(data = PUs, aes(x = log10(POP + 1))) +
   geom_histogram(colour = "black", binwidth = 0.5, fill = "#CC9900") +
   theme_bw(base_size = 8) +
-  xlab(expression(Population~protected~Log^{10}(people~km^{-2})))
+  xlab(expression(Population~protected~Log[10](people~km^{-2})))
 
 carb_hist <- ggplot(data = PUs, aes(x = Tot_Carbon)) +
-  geom_histogram(colour = "black", binwidth = 0.5, fill = "#00B899") +
+  geom_histogram(colour = "black", binwidth = max(PUs$Tot_Carbon)/20, fill = "#00B899") +
   theme_bw(base_size = 8) +
   xlab(expression(Carbon~stored~(Mg~km^{-2})))
 
 prop_hist + pop_hist +
   carb_hist + fish_hist +
   plot_layout(ncol = 2) +
-  plot_annotation(tag_levels = 'A') +
+  plot_annotation(tag_levels = 'a') +
   theme(plot.tag = element_text(face = 'bold'))
 
 ggsave("Figures/Hist.pdf", 
@@ -78,7 +78,7 @@ radar_data <- Increase_EcoServices_Prct %>%
   mutate(Biodiversity = ntarget_reached_df_BioServ$reached/100) %>% 
   rename(Group = prct) %>% 
   dplyr::select(Group, everything()) %>% 
-  filter(Group %in% c(10, 30, 50))
+  filter(Group %in% c(10, 30))
 
 plot_radar_BioServ <- fPlot_Radar(radar_data)
 
@@ -103,8 +103,9 @@ radar_data_WDPA <- Increase_EcoServices_WDPA_Prct %>%
   mutate(Biodiversity = Biodiversity/100) %>% 
   rename(Group = prct) %>% 
   dplyr::select(Group, everything()) %>% 
-  filter(Group %in% c(13.2, 30, 50))
+  filter(Group %in% c(13.1, 30))
 
 plot_radar_BioServ_WDPA <- fPlot_Radar(radar_data_WDPA)
 
 ggsave(plot = plot_radar_BioServ_WDPA, "Figures/Radar_WDPA.svg", dpi = 1000, width = 4, height = 4, units = "cm", limitsize = FALSE)
+
