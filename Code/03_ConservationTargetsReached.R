@@ -318,7 +318,7 @@ plot_TargetsReached + Plot_Increase +
 #   theme(plot.tag = element_text(face = 'bold'))
   
 ggsave("Figures/Targets_IncreaseServices.pdf",
-         dpi = 1000, units = "cm", width = 16, height = 18) 
+         dpi = 1000, units = "cm", width = 16, height = 14) 
 
 # Save layers
 saveRDS(ntarget_reached_df_BioServ, "RDS/ntarget_reached_df_BioServ.rds")

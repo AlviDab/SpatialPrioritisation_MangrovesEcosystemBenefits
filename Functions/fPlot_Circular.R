@@ -60,7 +60,7 @@ fPlot_Circular <- function(df, ext_val, colr, lab, lvl) {
     scale_fill_manual(name = "",
                       values = colr) +
     
-    # Add a val=100/75/50/25 lines. I do it at the beginning to make sur barplots are OVER it.
+    # Add a val=100/75/50/25 lines. I do it at the beginning to make sure barplots are OVER it.
     geom_segment(data=grid_data, aes(x = end, y = 0, xend = start, yend = 0), colour = "black", alpha=1, size=0.3, inherit.aes = FALSE ) +
     geom_segment(data=grid_data, aes(x = end, y = ext_val, xend = start, yend = ext_val), colour = "black", alpha=1, size=0.3 , inherit.aes = FALSE ) +
     geom_segment(data=grid_data, aes(x = end, y = ext_val*2, xend = start, yend = ext_val*2), colour = "black", alpha=1, size=0.3, inherit.aes = FALSE ) +
@@ -73,7 +73,7 @@ fPlot_Circular <- function(df, ext_val, colr, lab, lvl) {
     ylim(-ext_val*3.2, ext_val*4*4/3) +
     
     # Add labels on top of each bar
-    geom_text(data = label_data, aes(x = id, y = tot + 100, label=feature, hjust=hjust), color="black", alpha=0.6, size=2.3, angle = label_data$angle, inherit.aes = FALSE ) +
+    geom_text(data = label_data, aes(x = id, y = tot + 1, label = feature, hjust = hjust), color="black", alpha = 0.6, size = 2.3, angle = label_data$angle, inherit.aes = FALSE ) +
     
     # Add base line information
     geom_segment(data = base_data, aes(x = start, y = -ext_val/7.5, xend = end, yend = -ext_val/7.5), colour = "black", alpha = 0.8, size = 0.5 , inherit.aes = FALSE )  +

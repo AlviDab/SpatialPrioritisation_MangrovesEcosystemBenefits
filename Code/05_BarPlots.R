@@ -53,4 +53,4 @@ Plot30_WDPA[[2]] + #Plot50_WDPA[[2]] +
   plot_annotation(tag_levels = 'a') +
   theme(plot.tag = element_text(face = 'bold'))
 
-ggsave("Figures/Barplot.svg", width = 17.0, height = 22, units = "cm")
+ggsave("Figures/Barplot.svg", width = 17.0, height = 12, units = "cm")
