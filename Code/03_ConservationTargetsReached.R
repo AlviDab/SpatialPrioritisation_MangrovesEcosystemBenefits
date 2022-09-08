@@ -82,7 +82,7 @@ targets_reached_PAs <- targets_reached_PAs %>%
                                TRUE ~ 1)) %>% 
   #group_by(names) %>% 
   #summarise(protected = sum(protected)/n()) %>% 
-  filter(protected == 1) %>% #Select only planning units with result 1
+  filter(protected == TRUE) %>% #Select only planning units with result 1
   nrow() #number of planning units that reach the targets
 
 # Calculate the number of species that reach the targets for incremental rankings
@@ -134,7 +134,7 @@ fplot_targets <- function(ntarget_reached) {
     xlab("Mangroves selected in priority areas (%)") +
     ylab("Biodiversity targets reached (%)") +
     theme_bw(base_size = 6.5) +
-    theme(#legend.position = "none",
+    theme(legend.position = "none",
           legend.title = element_blank()#,
           #legend.background = element_rect(fill="NA", size=0.5, linetype="solid", colour ="NA")
     ) +
@@ -190,7 +190,7 @@ Total_Services <- PUs %>%
 
 PA_Services <- PUs %>% 
   as_tibble %>% 
-  filter(Protected == 1) %>% #select only planning units already protected
+  filter(Protected == TRUE) %>% #select only planning units already protected
   summarise(Fishing = sum(Fishing_Intensity*AreaGMWKm), 
             People = sum(POP*AreaGMWKm),
             Properties = sum(TOT_STOCK*AreaGMWKm),
@@ -325,4 +325,3 @@ saveRDS(ntarget_reached_df_BioServ, "RDS/ntarget_reached_df_BioServ.rds")
 saveRDS(ntarget_reached_df_BioServ_WDPA, "RDS/ntarget_reached_df_BioServ_WDPA.rds")
 saveRDS(Increase_EcoServices_Prct, "RDS/Increase_EcoServices_Prct.rds")
 saveRDS(Increase_EcoServices_WDPA_Prct, "RDS/Increase_EcoServices_WDPA_Prct.rds")
-  

@@ -73,7 +73,7 @@ PUs_splitted <- plyr::join_all(piv, by='ID', type='left') #left join all the tib
 PUs_splitted[is.na(PUs_splitted)] <- 0 #replace all the NAs in PUs_splitted to 0
 
 PUs_splitted <- PUs_splitted %>% 
-  select_if(~ !is.numeric(.) || sum(.) != 0) #Keep all the column that are numeric and which sum is != 0
+  dplyr::select(where( ~ is.numeric(.x) && sum(.x) != 0)) #Keep all the column that are numeric and which sum is != 0
 
 ################################################################################
 #2. Biotyp
@@ -151,7 +151,8 @@ PUs_int <- PUs_int %>%
   rename_with(~paste0(., "_", "Carbonate"), !ID) #Left join and add _Carbonate to the name of all the columns
 
 PUs_biotyp <- PUs_biotyp %>% 
-  left_join(PUs_int, by = "ID")
+  left_join(PUs_int, by = "ID") %>% 
+  dplyr::select(where( ~ is.numeric(.x) && sum(.x) != 0)) #Remove all the columns that are all 0
 
 ################################################################################
 #Join the columns
@@ -165,9 +166,5 @@ PUs <- PUs %>%
                    "Delta", "Estuary", "Lagoon", "OpenCoast", "Terrigenous", "Carbonate")) %>% 
   left_join(PUs_splitted, by = "ID") #Add splitted columns
 
-#Remove all the columns that are all zeros
-PUs <- PUs %>% 
-  select_if(~ !is.numeric(.) || sum(.) != 0) #Remove all the columns that are all 0
-
 #Save the results
-saveRDS(PUs, "RDS/Mollweide/PUs_SplittedSpecies.rds")
+saveRDS(PUs, "RDS/PUs_Splitted.rds")

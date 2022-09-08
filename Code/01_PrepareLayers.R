@@ -175,7 +175,7 @@ PUs <- PUs %>%
 PUs <- PUs %>% 
   fNN_Coast_x()
 
-PUs$Tot_Carbon <- (PUs$soil_carbon + PUs$biomass_carbon)*100 #Transform from Mg C ha^-1 to Mg C Km²
+PUs$Tot_Carbon <- (PUs$soil_carbon + PUs$biomass_carbon)*(10^-4) #Transform from Mg C ha^-1 to Mt C Km²
 
 #####################################
 #3. WDPA, countries and continents 
@@ -290,3 +290,4 @@ result_BioServ_WDPA <- result_BioServ_WDPA %>%
  #4. SaveRDS
  saveRDS(Large_PUs, "RDS/Large_PUs.rds")
  saveRDS(PUs, "RDS/PUs_NotSplitted.rds")
+ 

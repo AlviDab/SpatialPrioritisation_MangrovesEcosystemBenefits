@@ -301,7 +301,7 @@ ggsave("Figures/CircularBarplot_Population.svg", dpi = 1000, width = 13, height 
 #Carbon
 max(country_protection_30$Carbon30)
 
-country_protection_100$Carbon100 <- 80000
+country_protection_100$Carbon100 <- 800
 
 df_circbp_Carbon <- country_protection_30 %>% 
   left_join(country_protection_10, by = "country") %>% 
@@ -322,7 +322,7 @@ df_circbp_Carbon <- country_protection_30 %>%
 df_circbp_Carbon$name <- NULL
 
 circ_carb <- fPlot_Circular(df_circbp_Carbon, colr = c("#e5e5e5", "#0AFFD6", "#004D40"), 
-               ext_val = 80000/4, lab = c("0", "2", "4", "6", "8"),
+               ext_val = 800/4, lab = c("0", "200", "400", "600", "800"),
                lvl = c("100%", "Top-ranked 30%", "Top-ranked 10%"))
 
 ggsave("Figures/CircularBarplot_Carbon.svg", dpi = 1000, width = 13, height = 14, units = "cm", limitsize = FALSE)
@@ -529,7 +529,7 @@ ggsave("Figures/CircularBarplot_Population_WDPA.svg", dpi = 1000, width = 13, he
 ## Carbon
 max(country_protection_30$Carbon30)
 
-country_protection_100$Carbon100 <- 80000
+country_protection_100$Carbon100 <- 800
 
 df_circbp_Carbon <- country_protection_30 %>%
   left_join(country_protection_PA, by = "country") %>% 
@@ -551,7 +551,7 @@ df_circbp_Carbon <- country_protection_30 %>%
 df_circbp_Carbon$name <- NULL
 
 circ_carb <- fPlot_Circular(df_circbp_Carbon, colr = c("#e5e5e5", "#47B5FF", "#06283D"), #colr = c("#e5e5e5", "#0AFFD6", "#00A388", "#004D40"),
-               ext_val = 80000/4, lab = c("0", "2", "4", "6", "8"),
+               ext_val = 800/4, lab = c("0", "200", "400", "600", "800"),
                lvl = c("100%", "Top-ranked 30%", "Already protected areas"))
 
 ggsave("Figures/CircularBarplot_Carbon_WDPA.svg", dpi = 1000, width = 13, height = 14, units = "cm", limitsize = FALSE)

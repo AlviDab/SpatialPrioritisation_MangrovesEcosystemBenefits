@@ -88,14 +88,14 @@ fPlot_PUsValues <- function(x, col_name, scale_fill = "turbo", logarithmic = FAL
             mean()
         }
           else {
-            y<- 0
+            y <- NA
           }
       }
       ) 
     
     Large_PUs <- Large_PUs %>% 
-      mutate(!!sym(col_name) := unlist(a)) #%>% 
-      #filter(!!sym(col_name) != 0) 
+      mutate(!!sym(col_name) := unlist(a)) %>% 
+      filter(!is.na(!!sym(col_name))) 
     
     if(logarithmic == TRUE) {
       

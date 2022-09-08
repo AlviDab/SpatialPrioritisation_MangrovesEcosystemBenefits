@@ -122,7 +122,7 @@ fStat_CountryContinent <- function(result, n) { #Percentage of mangroves in prio
   ## Percentage of total mangroves protected by country/continent
   protection_country <- PUs %>% 
     as_tibble() %>% #Transform to tibble
-    filter(Protected == "TRUE") %>% #Select only PUs currently protected
+    filter(Protected == TRUE) %>% #Select only PUs currently protected
     group_by(country) %>% #group by country
     summarise(tot_mangrove_protected = sum(AreaGMWKm)) #sum of mangroves by country considered already protected
   

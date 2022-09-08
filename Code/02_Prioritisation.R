@@ -251,8 +251,13 @@ result_BioServ <- result_BioServ %>%
 
 result_BioServ$rank <- -1*(result_BioServ$rank - 1) + 100 #Invert the rank
 
+result_BioServ <- result_BioServ %>%
+  as_tibble %>% #Transform to tibble
+  dplyr::select(rank, ID) %>% #Select only rank and ID
+  left_join(PUs, by = 'ID')
+
 # Save the resulting shapefile
-saveRDS(result_BioServ, paste0("RDS/result_BioServ_1000.rds"))
+saveRDS(result_BioServ, paste0("RDS/result_BioServ.rds"))
 
 # World map
 plot_global_map <- fPlot_Rank(result_BioServ, Large_PUs, palet = "viridis")
@@ -330,7 +335,7 @@ result_BioServ_WDPA <- result_BioServ_WDPA %>%
   left_join(PUs, by = 'ID')
 
 result_BioServ_WDPA_rmPA <- result_BioServ_WDPA %>% 
-  filter(Protected == 0) %>% #Remove all the areas that are already protected
+  filter(Protected == FALSE) %>% #Remove all the areas that are already protected
   st_as_sf
 
 result_BioServ_WDPA <- result_BioServ_WDPA %>%

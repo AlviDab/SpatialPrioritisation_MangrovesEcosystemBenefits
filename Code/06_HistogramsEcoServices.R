@@ -30,22 +30,26 @@ source("Functions/fPlot_Radar.r")
 fish_hist <- ggplot(data = PUs, aes(x = log10(Fishing_Intensity + 1))) +
   geom_histogram(colour = "black", binwidth = 0.5, fill = "#1363DF") +
   theme_bw(base_size = 8) +
-  xlab(expression(Fishing~Intensity~Log[10](fisher~days~km^{-2}~year^{-1})))
+  xlab(expression(Fishing~Intensity~Log[10](fisher~days~km^{-2}~year^{-1}))) +
+  ylab("Number of planning units")
 
 prop_hist <- ggplot(data = PUs, aes(x = log(TOT_STOCK + 1))) +
   geom_histogram(colour = "black", binwidth = 0.5, fill = "#EB5C90") +
   theme_bw(base_size = 8) +
-  xlab(expression(Properties~protected~Log[10]("$"~km^{-2})))
+  xlab(expression(Properties~protected~Log[10]("$"~km^{-2}))) +
+  ylab("Number of planning units")
   
 pop_hist <- ggplot(data = PUs, aes(x = log10(POP + 1))) +
   geom_histogram(colour = "black", binwidth = 0.5, fill = "#CC9900") +
   theme_bw(base_size = 8) +
-  xlab(expression(Population~protected~Log[10](people~km^{-2})))
+  xlab(expression(Population~protected~Log[10](people~km^{-2}))) +
+  ylab("Number of planning units")
 
 carb_hist <- ggplot(data = PUs, aes(x = Tot_Carbon)) +
   geom_histogram(colour = "black", binwidth = max(PUs$Tot_Carbon)/20, fill = "#00B899") +
   theme_bw(base_size = 8) +
-  xlab(expression(Carbon~stored~(Mg~km^{-2})))
+  xlab(expression(Carbon~stored~(Mt~km^{-2}))) +
+  ylab("Number of planning units")
 
 prop_hist + pop_hist +
   carb_hist + fish_hist +

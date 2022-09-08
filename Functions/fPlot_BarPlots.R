@@ -14,23 +14,23 @@ fplot_BarPlots <- function(PUs, sol1, sol2) {
   list_ylab <- list(expression(Mean~fishing~Intensity~(fisher~days~km^{-2}~year^{-1})),
                     expression(Mean~properties~protected~("$"~km^{-2})),
                     expression(Mean~population~protected~(people~km^{-2})), 
-                    expression(Mean~carbon~stored~(Mg~km^{-2})))
+                    expression(Mean~carbon~stored~(Mt~km^{-2})))
   
   barplots <- lapply(1:4, function(x) {
     
     In_PA <- PUs %>%
-      filter(Protected == 1) %>%
+      filter(Protected == TRUE) %>%
       mutate(Selection = "Existing protected areas")
     
     Selected_PA_30 <- sol1 %>%
-      filter(Protected != 1) %>% 
-      dplyr::select(!rank) %>% 
+      filter(Protected != TRUE) %>% 
+      dplyr::select(!c(rank, LockedIn)) %>% 
       st_as_sf %>% 
       mutate(Selection = "Priority areas biodiversity and ecosystem services")
     
     Selected_PA_50 <- sol2 %>%
-      filter(Protected != 1) %>% 
-      dplyr::select(!rank) %>% 
+      filter(Protected != TRUE) %>% 
+      dplyr::select(!c(rank, LockedIn)) %>% 
       st_as_sf %>%  
       mutate(Selection = "Priority areas biodiversity")
     
@@ -70,7 +70,7 @@ fplot_BarPlots <- function(PUs, sol1, sol2) {
       parse(text = gsub("e+", " %*% 10^", scales::scientific_format()(x)))
     }
     
-    max_val <- c(2500, 7.5e+05, 300, 6)
+    max_val <- c(2500, 7.5e+05, 300, 0.06)
     
     if(x == 2) {plot_PA <- ggplot(mean_PA, aes(x = Selection, y = !!sym(list_cost[[x]]), fill = Selection)) +
       geom_col(colour =  "black", alpha = 1) +
