@@ -254,7 +254,8 @@ result_BioServ$rank <- -1*(result_BioServ$rank - 1) + 100 #Invert the rank
 result_BioServ <- result_BioServ %>%
   as_tibble %>% #Transform to tibble
   dplyr::select(rank, ID) %>% #Select only rank and ID
-  left_join(PUs, by = 'ID')
+  left_join(PUs, by = 'ID') %>% 
+  st_as_sf() #Transform to shapefile
 
 # Save the resulting shapefile
 saveRDS(result_BioServ, paste0("RDS/result_BioServ.rds"))

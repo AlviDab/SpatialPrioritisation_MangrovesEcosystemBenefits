@@ -36,13 +36,13 @@ limits <- st_bbox(c(xmin = 96.7, xmax = 108.2, ymin = 4, ymax = 22.5), crs = st_
 
 plot <- fPlot_Rank(result_BioServ, limits = limits, palet = "viridis")
 
-ggsave("Figures/Zoom/ThaVnm.pdf",  dpi = 1000, 
+ggsave("Figures/ThaVnm.pdf",  dpi = 1000, 
        width = 6, height = 7, units = "cm", limitsize = FALSE)
 
 plot <- fPlot_Rank(result_BioServ_WDPA_rmPA, limits = limits, palet = "viridis", 
                    brk = c(14, 25, 50, 75, 100), lm = c(14, 100))
 
-ggsave("Figures/Zoom/ThaVnm_WDPA.pdf",  dpi = 1000, 
+ggsave("Figures/ThaVnm_WDPA.pdf",  dpi = 1000, 
        width = 6, height = 7, units = "cm", limitsize = FALSE)
 
 #PNG
@@ -53,13 +53,13 @@ limits <- st_bbox(c(xmin = 140, xmax = 152.5, ymin = -18.5, ymax = 1), crs = st_
 
 plot <- fPlot_Rank(result_BioServ, limits = limits, palet = "viridis")
 
-ggsave("Figures/Zoom/PNG.pdf",  dpi = 1000, 
+ggsave("Figures/PNG.pdf",  dpi = 1000, 
        width = 6, height = 7, units = "cm", limitsize = FALSE)
 
 plot <- fPlot_Rank(result_BioServ_WDPA_rmPA, limits = limits, palet = "viridis", 
                    brk = c(14, 50, 75, 100), lm = c(14, 100))
 
-ggsave("Figures/Zoom/PNG_WDPA.pdf",  dpi = 1000, 
+ggsave("Figures/PNG_WDPA.pdf",  dpi = 1000, 
        width = 6, height = 7, units = "cm", limitsize = FALSE)
 
 #SE Asia
@@ -76,7 +76,7 @@ ggsave("Figures/Zoom/SEAsia.pdf",  dpi = 1000,
 plot <- fPlot_Rank(result_BioServ_WDPA_rmPA, limits = limits, palet = "viridis", 
                    brk = c(14, 25, 50, 75, 100), lm = c(14, 100))
 
-ggsave("Figures/Zoom/SEAsia_WDPA.pdf",  dpi = 1000, 
+ggsave("Figures/SEAsia_WDPA.pdf",  dpi = 1000, 
        width = 8, height = 6, units = "cm", limitsize = FALSE)
 
 
@@ -88,13 +88,13 @@ limits <- st_bbox(c(xmin = 44, xmax = 32.5, ymin = 12, ymax = 29.5), crs = st_cr
 
 plot <- fPlot_Rank(result_BioServ, limits = limits, palet = "viridis")
 
-ggsave("Figures/Zoom/RedSea.pdf",  dpi = 1000, 
+ggsave("Figures/RedSea.pdf",  dpi = 1000, 
        width = 6, height = 7, units = "cm", limitsize = FALSE)
 
 plot <- fPlot_Rank(result_BioServ_WDPA_rmPA, limits = limits, palet = "viridis", 
                    brk = c(14, 25, 50, 75, 100), lm = c(14, 100))
 
-ggsave("Figures/Zoom/RedSea_WDPA.pdf",  dpi = 1000, 
+ggsave("Figures/RedSea_WDPA.pdf",  dpi = 1000, 
        width = 6, height = 7, units = "cm", limitsize = FALSE)
 
 #Latin America
@@ -105,11 +105,11 @@ limits <- st_bbox(c(xmin = -93.5, xmax = -76, ymin = 11.5, ymax = 24), crs = st_
 
 plot <- fPlot_Rank(result_BioServ, limits = limits, palet = "viridis")
 
-ggsave("Figures/Zoom/LatAm.pdf",  dpi = 1000, 
+ggsave("Figures/LatAm.pdf",  dpi = 1000, 
        width = 8, height = 6, units = "cm", limitsize = FALSE)
 
 plot <- fPlot_Rank(result_BioServ_WDPA_rmPA, limits = limits, palet = "viridis", 
                    brk = c(14, 25, 50, 75, 100), lm = c(14, 100))
 
-ggsave("Figures/Zoom/LatAm_WDPA.pdf",  dpi = 1000, 
+ggsave("Figures/LatAm_WDPA.pdf",  dpi = 1000, 
        width = 8, height = 6, units = "cm", limitsize = FALSE)
