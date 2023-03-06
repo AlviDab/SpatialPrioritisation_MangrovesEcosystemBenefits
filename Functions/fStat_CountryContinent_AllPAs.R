@@ -1,6 +1,6 @@
 #Author: Alvise Dabalà
 #Function to calculate statistic by country and by region of the planning units selected
-#when adding protection to the already protected areas
+#when adding protection to the already Protected_I_VI areas
 
 #Input: 
 # - PUs <sf>: planning units
@@ -11,7 +11,7 @@
 
 #n is the rank
 
-fStat_CountryContinent_PAs <- function(PUs, PUs_NotSplitted) { ##Percentage of mangroves in priority areas (top 10%)
+fStat_CountryContinent_AllPAs <- function(PUs) { ##Percentage of mangroves in priority areas (top 10%)
   #Total mangroves by country
   total_country <- PUs %>% 
     as_tibble() %>% 
@@ -34,7 +34,7 @@ fStat_CountryContinent_PAs <- function(PUs, PUs_NotSplitted) { ##Percentage of m
   ##Ecosystem services per square km at country scale → what are the countries selected for higher services?
   services_country <- PUs %>% 
     as_tibble %>%
-    filter(Protected == TRUE) %>% #select only protected areas
+    filter(Protected_I_VI == TRUE) %>% #select all protected areas
     group_by(country) %>% 
     summarise(n_PUs = n(),
               Fishing = sum(Fishing_Intensity*AreaGMWKm), 
@@ -48,7 +48,7 @@ fStat_CountryContinent_PAs <- function(PUs, PUs_NotSplitted) { ##Percentage of m
   
   services_continent <- PUs %>% 
     as_tibble %>% 
-    filter(Protected == TRUE) %>% #select only protected areas
+    filter(Protected_I_VI == TRUE) %>% #select only Protected_I_VI areas
     group_by(continent) %>% 
     summarise(n_PUs = n(),
               Fishing = sum(Fishing_Intensity*AreaGMWKm), 
@@ -61,7 +61,7 @@ fStat_CountryContinent_PAs <- function(PUs, PUs_NotSplitted) { ##Percentage of m
   continent_stat <- services_continent
   
   ##Number of mangroves species by country?
-  n_species_by_country <- PUs_NotSplitted %>% 
+  n_species_by_country <- PUs %>% 
     as_tibble %>% 
     dplyr::select(c(names(species), country)) %>% 
     group_by(country) %>% 
@@ -72,7 +72,7 @@ fStat_CountryContinent_PAs <- function(PUs, PUs_NotSplitted) { ##Percentage of m
   country_stat <- country_stat %>% 
     left_join(n_species_by_country, by = 'country')
   
-  n_species_by_continent <- PUs_NotSplitted %>% 
+  n_species_by_continent <- PUs %>% 
     as_tibble %>% 
     dplyr::select(c(names(species), continent)) %>% 
     group_by(continent) %>% 
@@ -83,27 +83,27 @@ fStat_CountryContinent_PAs <- function(PUs, PUs_NotSplitted) { ##Percentage of m
   continent_stat <- continent_stat %>% 
     left_join(n_species_by_continent)
   
-  ## Percentage of total mangroves area protected by country
+  ## Percentage of total mangroves area Protected_I_VI by country
   protection_country <- PUs %>% 
     as_tibble() %>% 
-    filter(Protected == TRUE) %>% #already protected
+    filter(Protected_I_VI == TRUE) %>% #already Protected_I_VI
     group_by(country) %>% 
-    summarise(tot_mangrove_protected = sum(AreaGMWKm)) #total mangrove area protected
+    summarise(tot_mangrove_Protected_I_VI = sum(AreaGMWKm)) #total mangrove area Protected_I_VI
   
   country_stat <- country_stat %>% 
     left_join(protection_country, by = 'country') %>% 
-    mutate(prct_tot_mangrove_protected = tot_mangrove_protected/total_area*100) #percentage of the toal mangrove area that is currently protected
+    mutate(prct_tot_mangrove_Protected_I_VI = tot_mangrove_Protected_I_VI/total_area*100) #percentage of the toal mangrove area that is currently Protected_I_VI
   
-  ## Percentage of total mangroves protected by continent
+  ## Percentage of total mangroves Protected_I_VI by continent
   protection_continent <- PUs %>% 
     as_tibble() %>% 
-    filter(Protected == TRUE) %>% 
+    filter(Protected_I_VI == TRUE) %>% 
     group_by(continent) %>% 
-    summarise(tot_mangrove_protected = sum(AreaGMWKm))
+    summarise(tot_mangrove_Protected_I_VI = sum(AreaGMWKm))
   
   continent_stat <- continent_stat %>% 
     left_join(protection_continent, by = 'continent') %>% 
-    mutate(prct_tot_mangrove_protected = tot_mangrove_protected/total_area*100) #Percentage of total mangrove already protected
+    mutate(prct_tot_mangrove_Protected_I_VI = tot_mangrove_Protected_I_VI/total_area*100) #Percentage of total mangrove already Protected_I_VI
   
   list(country_stat, continent_stat)
 }

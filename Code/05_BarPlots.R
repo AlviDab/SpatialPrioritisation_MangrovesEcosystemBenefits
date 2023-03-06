@@ -18,11 +18,13 @@ library(xlsx)
 # Create a tibble with the values of representation for 30, and 50% area budget
 source("Functions/fPlot_BarPlots.r")
 
-PUs <- readRDS("RDS/PUs_Splitted.rds")
-result_BioServ <- readRDS("RDS/result_BioServ.rds")
-result_BioServ_WDPA <- readRDS("RDS/result_BioServ_WDPA.rds")
-result_Bio <- readRDS("RDS/result_Bio.rds")
-result_Bio_WDPA <- readRDS("RDS/result_Bio_WDPA.rds")
+PUs <- readRDS("RDS/PUs_Splitted_I_IV_and_All_9111.rds")
+result_BioServ <- readRDS("RDS_rr/result_BioServ.rds")
+result_BioServ_WDPA <- readRDS("RDS_rr/result_BioServ_WDPA.rds")
+result_Bio <- readRDS("RDS_rr/result_Bio.rds")
+result_Bio_WDPA <- readRDS("RDS_rr/result_Bio_WDPA.rds")
+result_BioServ_AllWDPA <- readRDS("RDS_rr/result_BioServ_AllWDPA.rds")
+result_BioServ_WDPA <- readRDS("RDS_rr/result_BioServ_WDPA.rds")
 
 #Solutions 30% and 50%
 sol_ConsFeat_30_WDPA <- result_BioServ_WDPA %>% 
@@ -53,4 +55,4 @@ Plot30_WDPA[[2]] + #Plot50_WDPA[[2]] +
   plot_annotation(tag_levels = 'a') +
   theme(plot.tag = element_text(face = 'bold'))
 
-ggsave("Figures/Barplot.svg", width = 17.0, height = 12, units = "cm")
+ggsave("Figures_rr/Barplot.svg", width = 17.0, height = 12, units = "cm")

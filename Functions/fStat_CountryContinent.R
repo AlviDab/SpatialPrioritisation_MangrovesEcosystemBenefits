@@ -13,7 +13,7 @@
 #n is the rank
 source("Functions/fSelect_PriorityAreasProtected.r") #Selected priority areas
 
-fStat_CountryContinent <- function(result, n) { #Percentage of mangroves in priority areas (top 10%)
+fStat_CountryContinent <- function(result, n, IUCN = "I-IV") { #Percentage of mangroves in priority areas (top 10%)
   #Total mangroves by country
   total_country <- PUs %>% 
     as_tibble() %>% 
@@ -119,43 +119,90 @@ fStat_CountryContinent <- function(result, n) { #Percentage of mangroves in prio
   continent_stat <- continent_stat %>% 
     left_join(n_species_by_continent) #Left join the number of species by continent
   
-  ## Percentage of total mangroves protected by country/continent
-  protection_country <- PUs %>% 
-    as_tibble() %>% #Transform to tibble
-    filter(Protected == TRUE) %>% #Select only PUs currently protected
-    group_by(country) %>% #group by country
-    summarise(tot_mangrove_protected = sum(AreaGMWKm)) #sum of mangroves by country considered already protected
+  if(IUCN == "I-IV") {
   
-  country_stat <- country_stat %>% 
-    left_join(protection_country, by = 'country') %>% #protect countries by country
-    mutate(prct_tot_mangrove_protected = tot_mangrove_protected/total_area) #calculate the percentage of total mangrove areas already protected
+    ## Percentage of total mangroves protected by country/continent
+    protection_country <- PUs %>% 
+      as_tibble() %>% #Transform to tibble
+      filter(Protected == TRUE) %>% #Select only PUs currently protected
+      group_by(country) %>% #group by country
+      summarise(tot_mangrove_protected = sum(AreaGMWKm)) #sum of mangroves by country considered already protected
+    
+    country_stat <- country_stat %>% 
+      left_join(protection_country, by = 'country') %>% #protect countries by country
+      mutate(prct_tot_mangrove_protected = tot_mangrove_protected/total_area) #calculate the percentage of total mangrove areas already protected
+    
+    ## Percentage of total mangroves protected by continent/continent
+    protection_continent <- PUs %>% 
+      as_tibble() %>% 
+      filter(Protected == "TRUE") %>% #Only PUs currently protected 
+      group_by(continent) %>% #group by continent
+      summarise(tot_mangrove_protected = sum(AreaGMWKm)) #Total of mangrove areas protected
+    
+    continent_stat <- continent_stat %>% 
+      left_join(protection_continent, by = 'continent') %>% #Left join the protected areas by continent
+      mutate(prct_tot_mangrove_protected = tot_mangrove_protected/total_area) #calculate the percentage of protected areas by continent
+    
+      ################################################################################
+      ### Comparison priority protected and non protected areas
+      ## Percentage priority areas protected
+      
+      priority_areas_protected <- f_PriorityAreasProtected(result, n, IUCN = "I-IV") #Calculate the priority areas stats
+      
+      # By country
+      country_stat <- country_stat %>%
+        left_join(priority_areas_protected[[1]], by = 'country') %>% #left join the stats on priority areas
+        mutate(across(where(is.numeric), ~replace_na(., 0))) #replace all the NAs with zeros
+      
+      # By region
+      continent_stat <- continent_stat %>%
+        left_join(priority_areas_protected[[2]], by = 'continent') %>% #left join the stats on priority areas
+        replace(is.na(.), 0) #replace all the NAs with zeros
+      
+      list(country_stat, continent_stat) #list of the stats at country and continent scale
+  }
   
-  ## Percentage of total mangroves protected by continent/continent
-  protection_continent <- PUs %>% 
-    as_tibble() %>% 
-    filter(Protected == "TRUE") %>% #Only PUs currently protected 
-    group_by(continent) %>% #group by continent
-    summarise(tot_mangrove_protected = sum(AreaGMWKm)) #Total of mangrove areas protected
+  if(IUCN == "All") {
+    ## Percentage of total mangroves Protected_I_VI by country/continent
+    protection_country <- PUs %>% 
+      as_tibble() %>% #Transform to tibble
+      filter(Protected_I_VI == TRUE) %>% #Select only PUs currently Protected_I_VI
+      group_by(country) %>% #group by country
+      summarise(tot_mangrove_Protected_I_VI = sum(AreaGMWKm)) #sum of mangroves by country considered already Protected_I_VI
+    
+    country_stat <- country_stat %>% 
+      left_join(protection_country, by = 'country') %>% #protect countries by country
+      mutate(prct_tot_mangrove_Protected_I_VI = tot_mangrove_Protected_I_VI/total_area) #calculate the percentage of total mangrove areas already Protected_I_VI
+    
+    ## Percentage of total mangroves Protected_I_VI by continent/continent
+    protection_continent <- PUs %>% 
+      as_tibble() %>% 
+      filter(Protected_I_VI == "TRUE") %>% #Only PUs currently Protected_I_VI 
+      group_by(continent) %>% #group by continent
+      summarise(tot_mangrove_Protected_I_VI = sum(AreaGMWKm)) #Total of mangrove areas Protected_I_VI
+    
+    continent_stat <- continent_stat %>% 
+      left_join(protection_continent, by = 'continent') %>% #Left join the Protected_I_VI areas by continent
+      mutate(prct_tot_mangrove_Protected_I_VI = tot_mangrove_Protected_I_VI/total_area) #calculate the percentage of Protected_I_VI areas by continent
+    
+    ################################################################################
+    ### Comparison priority Protected_I_VI and non Protected_I_VI areas
+    ## Percentage priority areas Protected_I_VI
+    
+    priority_areas_Protected_I_VI <- f_PriorityAreasProtected(result, n, IUCN = "All") #Calculate the priority areas stats
+    
+    # By country
+    country_stat <- country_stat %>%
+      left_join(priority_areas_Protected_I_VI[[1]], by = 'country') %>% #left join the stats on priority areas
+      mutate(across(where(is.numeric), ~replace_na(., 0))) #replace all the NAs with zeros
+    
+    # By region
+    continent_stat <- continent_stat %>%
+      left_join(priority_areas_Protected_I_VI[[2]], by = 'continent') %>% #left join the stats on priority areas
+      replace(is.na(.), 0) #replace all the NAs with zeros
+    
+    list(country_stat, continent_stat) #list of the stats at country and continent scale    
+  }
   
-  continent_stat <- continent_stat %>% 
-    left_join(protection_continent, by = 'continent') %>% #Left join the protected areas by continent
-    mutate(prct_tot_mangrove_protected = tot_mangrove_protected/total_area) #calculate the percentage of protected areas by continent
-  
-  ################################################################################
-  ### Comparison priority protected and non protected areas
-  ## Percentage priority areas protected
-  
-  priority_areas_protected <- f_PriorityAreasProtected(result, n) #Calculate the priority areas stats
-  
-  # By country
-  country_stat <- country_stat %>%
-    left_join(priority_areas_protected[[1]], by = 'country') %>% #left join the stats on priority areas
-    mutate(across(where(is.numeric), ~replace_na(., 0))) #replace all the NAs with zeros
-  
-  # By region
-  continent_stat <- continent_stat %>%
-    left_join(priority_areas_protected[[2]], by = 'continent') %>% #left join the stats on priority areas
-    replace(is.na(.), 0) #replace all the NAs with zeros
-  
-  list(country_stat, continent_stat) #list of the stats at country and continent scale
+  return(list(country_stat, continent_stat))
 }

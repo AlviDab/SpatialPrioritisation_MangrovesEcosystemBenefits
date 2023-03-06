@@ -20,21 +20,30 @@ fplot_BarPlots <- function(PUs, sol1, sol2) {
     
     In_PA <- PUs %>%
       filter(Protected == TRUE) %>%
-      mutate(Selection = "Existing protected areas")
+      mutate(Selection = "Existing protected areas IUCN I-IV")
+    
+    In_AllPA <- PUs %>%
+      filter(Protected == FALSE & Protected_I_VI == TRUE) %>%
+      mutate(Selection = "Other existing protected areas")
     
     Selected_PA_30 <- sol1 %>%
       filter(Protected != TRUE) %>% 
-      dplyr::select(!c(rank, LockedIn)) %>% 
+      dplyr::select(!c(rank
+                       #, LockedIn
+                       )) %>% 
       st_as_sf %>% 
       mutate(Selection = "Priority areas biodiversity and ecosystem services")
     
     Selected_PA_50 <- sol2 %>%
       filter(Protected != TRUE) %>% 
-      dplyr::select(!c(rank, LockedIn)) %>% 
+      dplyr::select(!c(rank
+                       #, LockedIn
+                       )) %>% 
       st_as_sf %>%  
       mutate(Selection = "Priority areas biodiversity")
     
     PA_map <- In_PA %>% 
+      rbind(In_AllPA) %>% 
       rbind(Selected_PA_30) %>% 
       rbind(Selected_PA_50)
     
@@ -77,9 +86,11 @@ fplot_BarPlots <- function(PUs, sol1, sol2) {
       # geom_errorbar(aes(ymin=!!sym(list_cost[[x]])-!!sym(paste0(list_cost[[x]], "_margin")), 
       #                   ymax=!!sym(list_cost[[x]])+!!sym(paste0(list_cost[[x]], "_margin")))) +
       ylab(list_ylab[[x]]) +
-      scale_fill_manual(values = c("Priority areas biodiversity and ecosystem services" = "#EDCF5A",
-                                                                  "Priority areas biodiversity" = "#E57361",
-                                                                "Existing protected areas" = "#6C6D89")) +
+      scale_fill_manual(values = c("Priority areas biodiversity and ecosystem services" = "#FCBF49",
+                                   "Priority areas biodiversity" = "#F77F00",
+                                   "Existing protected areas IUCN I-IV" = "#003049",
+                                   "Other existing protected areas" = "#D62828"
+                                   )) +
       scale_y_continuous(limits = c(0, max_val[[x]]), 
                          labels = scientific10) +
       theme_bw(base_size = 6.5) +
@@ -93,9 +104,10 @@ fplot_BarPlots <- function(PUs, sol1, sol2) {
         # geom_errorbar(aes(ymin=!!sym(list_cost[[x]])-!!sym(paste0(list_cost[[x]], "_margin")), 
         #                   ymax=!!sym(list_cost[[x]])+!!sym(paste0(list_cost[[x]], "_margin")))) +
         ylab(list_ylab[[x]]) +
-        scale_fill_manual(values = c("Priority areas biodiversity and ecosystem services" = "#EDCF5A",
-                                     "Priority areas biodiversity" = "#E57361",
-                                     "Existing protected areas" = "#6C6D89")) +
+        scale_fill_manual(values = c("Priority areas biodiversity and ecosystem services" = "#FCBF49",
+                                     "Priority areas biodiversity" = "#F77F00",
+                                     "Existing protected areas IUCN I-IV" = "#003049",
+                                     "Other existing protected areas" = "#D62828")) +
         scale_y_continuous(limits = c(0, max_val[[x]])) +
         theme_bw(base_size = 6.5) +
         theme(axis.title.x = element_blank(),

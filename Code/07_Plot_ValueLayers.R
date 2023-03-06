@@ -24,9 +24,6 @@ PUs_NotSplitted <- readRDS("RDS/PUs_NotSplitted.rds")
 Large_PUs <- readRDS("RDS/Large_PUs_40000.rds")
 species <- readRDS("RDS/species.rds")
 
-cCRS <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
-
-
 #Plot of fishing intensity
 plot_fish <- fPlot_PUsValues(PUs, "Fishing_Intensity", logarithmic = TRUE, scale_fill = "mako")
 ggsave(filename = "Figures/Fishing_Intensity_log.svg", plot = plot_fish, width = 49, height = 25)
@@ -96,10 +93,22 @@ Plot_GMW <- ggplot() +
 ggsave(plot = Plot_GMW, "Figures/GMW.svg",
        dpi = 300, width = 15, height = 8, units = "cm", limitsize = FALSE)
 
-WDPA <- readRDS("Data/clean_WDPA.rds") %>% 
-  filter(IUCN_CAT %in% c("Ia", "Ib", "II", "III", "IV")) %>% 
+#Plot WDPA distribution
+All_WDPA <- readRDS("RDS/WDPA_polygon_points_123_clean.rds") %>% 
   st_transform(cCRS) %>%
   st_make_valid()
+
+FJI <- readRDS("RDS/wdpa_FJI.rds") %>% 
+  st_transform(cCRS) %>%
+  st_make_valid()
+
+All_WDPA <- plyr::rbind.fill(All_WDPA, FJI) %>% 
+  st_as_sf() %>%
+  st_transform(cCRS) %>%
+  st_make_valid()
+
+WDPA <- All_WDPA %>% 
+  filter(IUCN_CAT %in% c("Ia", "Ib", "II", "III", "IV"))
 
 #Plot the PAs map
 Plot_WDPA <- ggplot() +
@@ -108,10 +117,26 @@ Plot_WDPA <- ggplot() +
   theme_bw() +
   theme(axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        rect = element_rect(fill = "transparent"))
+        rect = element_rect(fill = "transparent"),
+        panel.background = element_blank())
 
-ggsave(plot = Plot_WDPA, "Figures/WDPA.svg", 
+ggsave(plot = Plot_WDPA, "Figures_rr/gurobi/WDPA.png", 
        dpi = 1000, width = 17, height = 10, units = "cm", limitsize = FALSE)
+
+#Plot the PAs map
+Plot_AllWDPA <- ggplot() +
+  geom_sf(data = world_map, colour ="grey50", fill = "grey70", size = 0.1) +
+  geom_sf(data = All_WDPA, fill = "#004D40", colour = "#004D40", size = 0.1) +
+  geom_sf(data = WDPA, fill = "#FFC107", colour = "#FFC107", size = 0.1) +
+  theme_bw() +
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        rect = element_rect(fill = "transparent"),
+        panel.background = element_blank())
+
+ggsave(plot = Plot_AllWDPA, "Figures_rr/gurobi/AllWDPA.png", 
+       dpi = 1000, width = 17, height = 10, units = "cm", limitsize = FALSE)
+
 
 # Plot_WDPA <- ggplot() +
 #   geom_sf(data = world_map, colour ="grey50", fill = "grey70", size = 0.1) +

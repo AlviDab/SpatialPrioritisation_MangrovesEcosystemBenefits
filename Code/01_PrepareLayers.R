@@ -51,38 +51,34 @@ BioTyptxt <- "Data/Worthington/TNC-006_BiophysicalTypologyMangroves/01_Data/Mang
 #1.2. Read the shapefiles and the rasters
 
 #1.2.1 Read, clean and plot the shapefile of GMW
-
 GMW <- GMWtxt %>%
    st_read() %>% #Read the GMW shapefile
-   st_transform(crs = cCRS) #Project GMW to degrees to make the cut
+   st_transform(crs = cCRS) #Project GMW
 
 #1.2.2. Read data for a map of the world
-
 world_map <- ne_countries(scale = "large", returnclass = "sf") %>%
-  st_transform(crs = cCRS) %>% #I project the crs of the GMW to meters
+  st_transform(crs = cCRS) %>% #I project the crs
   st_make_valid() #I make the shapefile valid
 
 #1.2.3. Read, clean and plot IUCN data
 IUCN <- IUCNtxt %>% 
   st_read() %>% #I read the file of the IUCN
-  st_transform(crs = cCRS) %>% #I re-project the shapefile to utm in meter 
+  st_transform(crs = cCRS) %>% #I re-project the shapefile 
   dplyr::filter(compiler == "IUCN") #I keep all the data that are compiled by IUCN, removing two species with wrong distribution
 
 #1.2.4. Read marine provinces
-
 MarineProvinces <- st_read(MarineProvincestxt) %>%
   st_transform(crs = cCRS) %>% 
   filter(TYPE == "MEOW") #Filter only the MEOW provinces
 
 #1.2.5. Read mangroves biophysical typology
-
 BioTyp <- st_read(BioTyptxt) %>%
   st_transform(crs = cCRS) #I project the crs of the GMW to meters
 
 #1.2.6. Read, clean and plot cost Layer
 Fish <- raster(Fisheriestxt) #I read the raster file of fisheries (used raster because with terra I was not able to read it)
 
-crs(Fish) <- crs("+proj=cea +lat_ts=0 +lon_0=-160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs") # I set the CRS of the file
+crs(Fish) <- crs("+proj=cea +lat_ts=0 +lon_0=-160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs") #I set the CRS of the file
 
 Fish <- as(Fish, "SpatRaster") #Produce a terra raster file
   
@@ -100,10 +96,7 @@ Large_PUs <- fCreate_PUs(40000) #Produce planning units for the aggregated resul
   
 #2.2 Calculation of GMW area coverage of each PU
 #    distribution of the areas
-PUs <- fSelect_PUsArea(PUs, GMW) #The number is the percentage of area of mangrove
-                                 #in the PUs to define that as a PUs
-                                 #e.g. 1 means that 1/100 of the area of a PU should
-                                 #be covered by mangroves to be defined as a PU
+PUs <- fSelect_PUsArea(PUs, GMW) 
 
 #2.3 Set the conservation features for each PUs
 
@@ -132,7 +125,7 @@ PUs <- fCalc_BioTypArea() #Calculate the area of each biophysical typology in a 
 #2.4 Set ecosystem services layers
 
 #2.4.1 Fisheries benefits
-#I remove the planning unit that create pproblems when reprojected
+#I remove the planning unit that create problems when reprojected
 PUs_Fish <- PUs %>%
   mutate(ID = as.numeric(rownames(PUs))) %>% #Add a new column called ID with rownames as value for each row.
   slice(1:9110)
@@ -178,13 +171,9 @@ PUs <- PUs %>%
 PUs$Tot_Carbon <- (PUs$soil_carbon + PUs$biomass_carbon)*(10^-4) #Transform from Mg C ha^-1 to Mt C Km²
 
 #####################################
-#3. WDPA, countries and continents 
+#3. countries and continents 
 
-#3.1. Intersect planning units with WDPA dataset
-PUs <- fSelectWDPA(PUs) %>% 
-  mutate(Protected = as.logical(Protected))
-
-#3.2. Intersect with countries and EEZ
+#3.1. Intersect with countries and EEZ
 #PUs by nation
 EEZ <- st_read("Data/EEZ/eez_v11.shp") %>% 
   st_transform(cCRS)
@@ -208,7 +197,7 @@ PUs <- PUs %>%
 
 PUs <- fNN_x(PUs, country)
 
-#3.3. PUs by Continent
+#3.2. PUs by Continent
 library(countrycode)
 countries <- data.frame(country = PUs$country)
 
@@ -242,7 +231,7 @@ ATG <- st_read("Data/Countries/ATG_adm0.shp") %>%
 DMA <- st_read("Data/Countries/DMA_adm0.shp") %>%
   st_transform(cCRS)
 
-a <- st_as_sf(result_BioServ_WDPA) %>%
+a <- st_as_sf(PUs) %>%
   filter(country == "France")
 
 a <- a %>%
@@ -268,12 +257,12 @@ a$country <- countrycode(sourcevar = a$country,
                            origin = "iso3c",
                            destination = "country.name")
 
-result_BioServ_WDPA <- result_BioServ_WDPA %>% 
+PUs <- PUs %>% 
   filter(country != "France") %>% 
   add_row(a) %>% 
   arrange(ID)
 
-#3.5. Solve Netherlands problem
+#3.3. Solve Netherlands problem considered part of Europe even though they are in the Americas region
 result_BioServ_WDPA <- result_BioServ_WDPA %>% 
   mutate(continent = case_when(country == "Netherlands" ~ "Americas", 
                    TRUE ~ PUs$continent))
@@ -288,6 +277,8 @@ result_BioServ_WDPA <- result_BioServ_WDPA %>%
  
  ###############################################################################
  #4. SaveRDS
+ dir.create("RDS")
+ 
  saveRDS(Large_PUs, "RDS/Large_PUs.rds")
  saveRDS(PUs, "RDS/PUs_NotSplitted.rds")
  
