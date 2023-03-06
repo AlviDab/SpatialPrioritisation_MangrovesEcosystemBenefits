@@ -103,17 +103,17 @@ PUs_1 <- PUs
 PUs_1$Protected <- PUs$Protected_I_VI
 PUs_1$AreaWDPA <- PUs$AreaWDPA_I_VI
 
-Stat_CountryContinent_AllPAs <- fStat_CountryContinent_PAs(PUs, PUs_NotSplitted)
+Stat_CountryContinent_AllPAs <- fStat_CountryContinent_AllPAs(PUs)
 Stat_CountryContinent_50_AllWDPA <- fStat_CountryContinent(result_BioServ_AllWDPA_rmPA, 50, IUCN = "All")
 
-Stat_CountryContinent_WDPA <- c(Stat_CountryContinent_AllPAs, Stat_CountryContinent_50_AllWDPA)
+Stat_CountryContinent_AllWDPA <- c(Stat_CountryContinent_AllPAs, Stat_CountryContinent_50_AllWDPA)
 
 # Save in an excel file
 list_sheets <- c("AllWDPA_country", "AllWDPA_continent", "+7%_Country_AllWDPA", "+7%_Continent_AllWDPA")
 
 file <- paste("Figures_rr/gurobi/", sep = "")
 
-lapply(seq_along(Stat_CountryContinent_WDPA), function(z) {
+lapply(seq_along(Stat_CountryContinent_AllWDPA), function(z) {
   write.xlsx(Stat_CountryContinent_WDPA[[z]], paste0(file, "Stat_CountryContinent_AllWDPA.xlsx"), sheetName = list_sheets[z], append = TRUE) 
 }
 )

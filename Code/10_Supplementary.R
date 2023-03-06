@@ -68,3 +68,7 @@ targets_reached_PAs_spec <- targets_reached_PAs_spec %>%
                                   n() > sum(protected) ~ 0
                                   ))
   
+################################################################################
+#Mean area in and out protected areas
+
+(mean(PUs[PUs$Protected == TRUE,]$AreaGMWKm) - mean(PUs[PUs$Protected == FALSE,]$AreaGMWKm))/mean(PUs[PUs$Protected == FALSE,]$AreaGMWKm)

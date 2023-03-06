@@ -52,7 +52,9 @@ PUs %>%
   as_tibble() %>% #Transform to tibble
   summarise(sum(AreaWDPA)) #Sum area of mangroves covered by IUCN I-IV
 
-18730/136752.8*100 #~0.5% more respect to what was estimated
+19403/136752.8*100 
+
+14.18837-13.51315 #~0.6% more respect to what was estimated
 
 #Scaling
 library(scales)
