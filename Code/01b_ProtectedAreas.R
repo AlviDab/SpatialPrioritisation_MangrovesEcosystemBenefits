@@ -244,7 +244,7 @@ source("Functions/fSelect_AllWDPA.R")
 
 #Calculate how much of the planning units are protected
 PUs <- fSelect_AllWDPA(PUs) %>% 
-  mutate(AllProtected = as.logical(AllProtected))
+  mutate(Protected_I_VI = as.logical(Protected_I_VI))
 
 #Now incorporate protection of PUs 9111 downloading fiji protected areas
 wdpa_FJI0 <- st_read("Data/WDPA_poly/WDPA_WDOECM_Dec2022_Public_FJI_shp_0/WDPA_WDOECM_Dec2022_Public_FJI_shp-polygons.shp")

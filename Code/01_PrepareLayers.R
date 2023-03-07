@@ -171,9 +171,13 @@ PUs <- PUs %>%
 PUs$Tot_Carbon <- (PUs$soil_carbon + PUs$biomass_carbon)*(10^-4) #Transform from Mg C ha^-1 to Mt C Km²
 
 #####################################
-#3. countries and continents 
+#3. WDPA, countries and continents 
 
-#3.1. Intersect with countries and EEZ
+#3.1. Intersect planning units with WDPA dataset
+PUs <- fSelectWDPA(PUs) %>% 
+  mutate(Protected = as.logical(Protected))
+
+#3.2. Intersect with countries and EEZ
 #PUs by nation
 EEZ <- st_read("Data/EEZ/eez_v11.shp") %>% 
   st_transform(cCRS)
@@ -197,7 +201,7 @@ PUs <- PUs %>%
 
 PUs <- fNN_x(PUs, country)
 
-#3.2. PUs by Continent
+#3.3. PUs by Continent
 library(countrycode)
 countries <- data.frame(country = PUs$country)
 
@@ -262,7 +266,7 @@ PUs <- PUs %>%
   add_row(a) %>% 
   arrange(ID)
 
-#3.3. Solve Netherlands problem considered part of Europe even though they are in the Americas region
+#3.4. Solve Netherlands problem considered part of Europe even though they are in the Americas region
 result_BioServ_WDPA <- result_BioServ_WDPA %>% 
   mutate(continent = case_when(country == "Netherlands" ~ "Americas", 
                    TRUE ~ PUs$continent))
