@@ -11,20 +11,19 @@ library(viridis)
 library(ggthemes)
 
 #Open rds
-result_BioServ <- readRDS("RDS_rr/1e-4/result_BioServ.rds")
-result_BioServ_WDPA <- readRDS("RDS_rr/1e-4/result_BioServ_WDPA.rds")
-result_Bio <- readRDS("RDS_rr/1e-4/result_Bio.rds")
-result_Bio_WDPA <- readRDS("RDS_rr/result_Bio_WDPA.rds")
-result_Bio_AllWDPA <- readRDS("RDS_rr/1e-4/result_Bio_AllWDPA.rds")
-result_BioServ_AllWDPA <- readRDS("RDS_rr/1e-4/result_BioServ_AllWDPA.rds")
+result_BioServ <- readRDS("RDS_rr/1e-4/gurobi/result_BioServ.rds")
+result_BioServ_WDPA <- readRDS("RDS_rr/1e-4/gurobi/result_BioServ_WDPA.rds")
+result_Bio <- readRDS("RDS_rr/1e-4/gurobi/result_Bio.rds")
+result_Bio_WDPA <- readRDS("RDS_rr/1e-4/gurobi/result_Bio_WDPA.rds")
+result_Bio_AllWDPA <- readRDS("RDS_rr/1e-4/gurobi/result_Bio_AllWDPA.rds")
+result_BioServ_AllWDPA <- readRDS("RDS_rr/1e-4/gurobi/result_BioServ_AllWDPA.rds")
 PUs <- readRDS("RDS_rr/PUs_Splitted_I_IV_and_All_9111.rds")
-PUs_NotSplitted <- readRDS("RDS/PUs_NotSplitted.rds")
-ntarget_reached_df_BioServ <- readRDS("RDS_rr/ntarget_reached_df_BioServ.rds")
-ntarget_reached_df_BioServ_WDPA <- readRDS("RDS_rr/ntarget_reached_df_BioServ_WDPA.rds")
-ntarget_reached_df_BioServ_AllWDPA <- readRDS("RDS_rr/ntarget_reached_df_BioServ_AllWDPA.rds")
-Increase_EcoServices_Prct <- readRDS("RDS_rr/Increase_EcoServices_Prct.rds")
-Increase_EcoServices_WDPA_Prct <- readRDS("RDS_rr/Increase_EcoServices_WDPA_Prct.rds")
-Increase_EcoServices_AllWDPA_Prct <- readRDS("RDS_rr/Increase_EcoServices_AllWDPA_Prct.rds")
+ntarget_reached_df_BioServ <- readRDS("RDS_rr/1e-4/gurobi/ntarget_reached_df_BioServ.rds")
+ntarget_reached_df_BioServ_WDPA <- readRDS("RDS_rr/1e-4/gurobi/ntarget_reached_df_BioServ_WDPA.rds")
+ntarget_reached_df_BioServ_AllWDPA <- readRDS("RDS_rr/1e-4/gurobi/ntarget_reached_df_BioServ_AllWDPA.rds")
+Increase_EcoServices_Prct <- readRDS("RDS_rr/1e-4/gurobi/Increase_EcoServices_Prct.rds")
+Increase_EcoServices_WDPA_Prct <- readRDS("RDS_rr/1e-4/gurobi/Increase_EcoServices_WDPA_Prct.rds")
+Increase_EcoServices_AllWDPA_Prct <- readRDS("RDS_rr/1e-4/gurobi/Increase_EcoServices_AllWDPA_Prct.rds")
 
 #Upload functions
 source("Functions/fPlot_Radar.r")
@@ -90,7 +89,7 @@ radar_data <- Increase_EcoServices_Prct %>%
 
 plot_radar_BioServ <- fPlot_Radar(radar_data)
 
-ggsave(plot = plot_radar_BioServ, "Figures_rr/Radar.svg", 
+ggsave(plot = plot_radar_BioServ, "Figures_rr/gurobi/Radar.svg", 
        dpi = 1000, width = 4, height = 4, units = "cm", limitsize = FALSE)
 
 ### Building on WDPA
@@ -115,7 +114,7 @@ radar_data_WDPA <- Increase_EcoServices_WDPA_Prct %>%
 
 plot_radar_BioServ_WDPA <- fPlot_Radar(radar_data_WDPA)
 
-ggsave(plot = plot_radar_BioServ_WDPA, "Figures_rr/Radar_WDPA.svg", dpi = 1000, width = 4, height = 4, units = "cm", limitsize = FALSE)
+ggsave(plot = plot_radar_BioServ_WDPA, "Figures_rr/gurobi/Radar_WDPA.svg", dpi = 1000, width = 4, height = 4, units = "cm", limitsize = FALSE)
 
 ### Building on AllDPA
 
@@ -126,9 +125,9 @@ Increase_EcoServices_AllWDPA_Prct <- Increase_EcoServices_AllWDPA_Prct %>%
   arrange(prct) 
 
 Increase_EcoServices_AllWDPA_Prct <- Increase_EcoServices_AllWDPA_Prct %>% 
-  left_join(ntarget_reached_df_BioServ_WDPA, by = "prct") %>% 
-  dplyr::select(!method) %>% 
-  replace(is.na(.), 0) %>% 
+  left_join(ntarget_reached_df_BioServ_AllWDPA, by = "prct") %>%
+  dplyr::select(!method) %>%
+  replace(is.na(.), 0) %>%
   rename(Biodiversity = reached)
 
 radar_data_AllWDPA <- Increase_EcoServices_AllWDPA_Prct %>%
@@ -139,4 +138,4 @@ radar_data_AllWDPA <- Increase_EcoServices_AllWDPA_Prct %>%
 
 plot_radar_BioServ_AllWDPA <- fPlot_Radar(radar_data_AllWDPA)
 
-ggsave(plot = plot_radar_BioServ_AllWDPA, "Figures_rr/Radar_AllWDPA.svg", dpi = 1000, width = 4, height = 4, units = "cm", limitsize = FALSE)
+ggsave(plot = plot_radar_BioServ_AllWDPA, "Figures_rr/gurobi/Radar_AllWDPA.svg", dpi = 1000, width = 4, height = 4, units = "cm", limitsize = FALSE)

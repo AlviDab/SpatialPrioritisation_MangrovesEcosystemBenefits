@@ -103,7 +103,7 @@ species <- species %>%
 
 dir.create("RDS_rr/1e-4/gurobi", recursive = TRUE)
 
-saveRDS(species, "RDS_rr/1e-4/gurobi/species.rds") #Save the RDS
+saveRDS(species, "RDS_rr/species.rds") #Save the RDS
 
 #Calculate species targets following Rodrigues et al. 2014 and Butchart et al. 2015
 spp_range_size_km2 <- seq(0.01, max(species), by = 100)
@@ -183,8 +183,8 @@ ConsFeatures <- ConsFeatures %>%
   mutate(type = case_when(amount < 1 ~ "Species", #When the target is <1 the type is species
                           TRUE ~ "EcoServices")) #Otherwise is EcoServices
 
-saveRDS(ConsFeatures, "RDS_rr/1e-4/gurobi/ConsFeatures.rds") #Save RDS
-saveRDS(ConsFeatures_NotSplitted, "RDS_rr/1e-4/gurobi/ConsFeatures_NotSplitted.rds")
+saveRDS(ConsFeatures, "RDS_rr/ConsFeatures.rds") #Save RDS
+saveRDS(ConsFeatures_NotSplitted, "RDS_rr/ConsFeatures_NotSplitted.rds")
 
 ################################################################################
 # Optimisation biodiversity and ecosystem services
