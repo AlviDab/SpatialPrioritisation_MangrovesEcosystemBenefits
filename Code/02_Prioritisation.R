@@ -5,15 +5,7 @@
 #Produce and run all the prioritisations
 
 #Open all the packages needed
-library(tidyverse)
-library(sf)
-library(prioritizr)
-library(units)
-library(patchwork)
-library(mapview)
-library(viridis)
-library(ggthemes)
-library(rnaturalearth)
+pacman::p_load(tidyverse, sf, prioritizr, rnaturalearth, viridis)
 
 ############################################
 #I set the various layer for the analysis
@@ -102,7 +94,6 @@ species <- species %>%
   summarise_all(sum) #Calculate the range of each species
 
 dir.create("RDS_rr/1e-4/gurobi", recursive = TRUE)
-
 saveRDS(species, "RDS_rr/species.rds") #Save the RDS
 
 #Calculate species targets following Rodrigues et al. 2014 and Butchart et al. 2015
@@ -221,7 +212,7 @@ for(x in 1:100) {
       add_feature_weights(ConsFeatures$w) #Add feature weights
   }
   
-  sol_AreaTarget <- solve(p_AreaTarget) #Solve the conservation planning problem
+  sol_AreaTarget <- solve(p_AreaTarget, force = TRUE) #Solve the conservation planning problem, force = TRUE solve a problem with the new version of prioritizr
   
   list_sol_AreaTarget_BioServ[[x]] <- list(p_AreaTarget, sol_AreaTarget) #Add the solution to the list of solutions
 }
@@ -298,10 +289,9 @@ for(x in 14:100) {
     add_locked_in_constraints(locked_in = "LockedIn") %>% #LockedIn areas
     add_binary_decisions() %>%
     add_gurobi_solver(gap = 1e-4, threads = 8) %>% #Insert your number of threads
-    #add_rsymphony_solver(verbose = FALSE) %>% 
     add_feature_weights(ConsFeatures$w) #Add weights
   
-  sol_AreaTarget <- solve(p_AreaTarget) #Solve the conservation planning problem
+  sol_AreaTarget <- solve(p_AreaTarget, force = TRUE) #Solve the conservation planning problem
   
   list_sol_AreaTarget_BioServ_WDPA[[x-13]] <- list(p_AreaTarget, sol_AreaTarget) #List of solution
 }
@@ -382,10 +372,9 @@ for(x in 44:100) { #Start at 44 because 43% of mangroves are currently protected
     add_locked_in_constraints(locked_in = "LockedIn") %>% #LockedIn areas
     add_binary_decisions() %>%
     add_gurobi_solver(gap = 1e-4, threads = 8) %>% #Insert your number of threads
-    #add_rsymphony_solver(verbose = FALSE) %>% 
     add_feature_weights(ConsFeatures$w) #Add weights
   
-  sol_AreaTarget <- solve(p_AreaTarget) #Solve the conservation planning problem
+  sol_AreaTarget <- solve(p_AreaTarget, force = TRUE) #Solve the conservation planning problem
   
   list_sol_AreaTarget_BioServ_AllWDPA[[x-43]] <- list(p_AreaTarget, sol_AreaTarget) #List of solution
 }
@@ -466,7 +455,6 @@ for(x in 1:100) {
       add_relative_targets(ConsFeatures$amount) %>% #representation targets (Area)
       add_binary_decisions() %>%
       add_gurobi_solver(gap = 1e-4, threads = 8) %>% #Insert your number of threads
-      #add_rsymphony_solver(verbose = FALSE) %>% 
       add_feature_weights(ConsFeatures$w)
   }
   
@@ -479,11 +467,10 @@ for(x in 1:100) {
       add_locked_in_constraints(locked_in = "LockedIn") %>% 
       add_binary_decisions() %>%
       add_gurobi_solver(gap = 1e-4, threads = 8) %>% 
-      #add_rsymphony_solver(verbose = FALSE) %>% 
       add_feature_weights(ConsFeatures$w)
   }
   
-  sol_AreaTarget_Bio <- solve(p_AreaTarget_Bio) #Solution conservation problem
+  sol_AreaTarget_Bio <- solve(p_AreaTarget_Bio, force = TRUE) #Solution conservation problem
   
   list_sol_AreaTarget_Bio[[x]] <- list(p_AreaTarget_Bio, sol_AreaTarget_Bio) #Add solution to the list
 }
@@ -541,7 +528,7 @@ ggsave(plot = plot_results, "Figures_rr/gurobi/Rank_Global_Bio.svg",
        dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
 
 ################################################################################
-# Optimisation biodiversity building on already protected areas
+# Optimisation biodiversity building on already protected areas (IUCN I-VI)
 ################################################################################
 
 list_sol_AreaTarget_Bio_WDPA <- list()
@@ -561,10 +548,9 @@ for(x in 14:100) {
     add_locked_in_constraints(locked_in = "LockedIn") %>% 
     add_binary_decisions() %>%
     add_gurobi_solver(gap = 1e-4, threads = 8) %>% 
-    #add_rsymphony_solver(verbose = FALSE) %>% 
     add_feature_weights(ConsFeatures$w)
   
-  sol_AreaTarget <- solve(p_AreaTarget)
+  sol_AreaTarget <- solve(p_AreaTarget, force = TRUE)
   
   list_sol_AreaTarget_Bio_WDPA[[x-13]] <- list(p_AreaTarget, sol_AreaTarget)
 }
@@ -608,14 +594,22 @@ result_Bio_WDPA <- result_Bio_WDPA %>%
     rank == 101 ~ 100,
     TRUE ~ .$rank))
 
+result_Bio_WDPA_rmPA <- result_Bio_WDPA %>% 
+  filter(Protected == FALSE) %>% #Remove all the areas that are already protected
+  st_as_sf
+
 result_Bio_WDPA <- result_Bio_WDPA %>%
   st_as_sf
 
 # Save the resulting shapefile
 saveRDS(result_Bio_WDPA, paste0("RDS_rr/1e-4/gurobi/result_Bio_WDPA.rds"))
 
+plot_results <- fPlot_PUsValues(result_Bio_WDPA_rmPA, "rank", scale_fill = "viridis") 
+ggsave(plot = plot_results, paste0("Figures_rr/gurobi/Rank_Global_Bio_WDPA.svg"),
+       dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
+
 ################################################################################
-# Optimisation all biodiversity building on already protected areas
+# Optimisation all biodiversity building on already protected areas (All PUs)
 ################################################################################
 
 list_sol_AreaTarget_Bio_AllWDPA <- list()
@@ -635,10 +629,9 @@ for(x in 44:100) {
     add_locked_in_constraints(locked_in = "LockedIn") %>% 
     add_binary_decisions() %>%
     add_gurobi_solver(gap = 1e-4, threads = 8) %>% 
-    #add_rsymphony_solver(verbose = FALSE) %>% 
     add_feature_weights(ConsFeatures$w)
   
-  sol_AreaTarget <- solve(p_AreaTarget)
+  sol_AreaTarget <- solve(p_AreaTarget, force = TRUE)
   
   list_sol_AreaTarget_Bio_AllWDPA[[x-43]] <- list(p_AreaTarget, sol_AreaTarget)
 }
@@ -682,9 +675,16 @@ result_Bio_AllWDPA <- result_Bio_AllWDPA %>%
     rank == 101 ~ 100,
     TRUE ~ .$rank))
 
+result_Bio_AllWDPA_rmPA <- result_Bio_AllWDPA %>% 
+  filter(Protected_I_VI == FALSE) %>% #Remove all the areas that are already protected
+  st_as_sf
+
 result_Bio_AllWDPA <- result_Bio_AllWDPA %>%
   st_as_sf
 
 # Save the resulting shapefile
 saveRDS(result_Bio_AllWDPA, paste0("RDS_rr/1e-4/gurobi/result_Bio_AllWDPA.rds"))
 
+plot_results <- fPlot_PUsValues(result_Bio_AllWDPA_rmPA, "rank", scale_fill = "viridis") 
+ggsave(plot = plot_results, paste0("Figures_rr/gurobi/Rank_Global_Bio_AllWDPA.svg"),
+       dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
