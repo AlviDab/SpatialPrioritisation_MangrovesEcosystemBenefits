@@ -19,25 +19,25 @@ fplot_BarPlots <- function(PUs, sol1, sol2) {
   barplots <- lapply(1:4, function(x) {
     
     In_PA <- PUs %>%
+      dplyr::select(!c(LockedIn)) %>% 
       filter(Protected == TRUE) %>%
       mutate(Selection = "Existing protected areas IUCN I-IV")
     
     In_AllPA <- PUs %>%
+      dplyr::select(!c(LockedIn)) %>% 
       filter(Protected == FALSE & Protected_I_VI == TRUE) %>%
       mutate(Selection = "Other existing protected areas")
     
     Selected_PA_30 <- sol1 %>%
       filter(Protected != TRUE) %>% 
-      dplyr::select(!c(rank
-                       #, LockedIn
+      dplyr::select(!c(rank, LockedIn
                        )) %>% 
       st_as_sf %>% 
       mutate(Selection = "Priority areas biodiversity and ecosystem services")
     
     Selected_PA_50 <- sol2 %>%
       filter(Protected != TRUE) %>% 
-      dplyr::select(!c(rank
-                       #, LockedIn
+      dplyr::select(!c(rank, LockedIn
                        )) %>% 
       st_as_sf %>%  
       mutate(Selection = "Priority areas biodiversity")
@@ -55,29 +55,12 @@ fplot_BarPlots <- function(PUs, sol1, sol2) {
                 TOT_STOCK = sum(TOT_STOCK*AreaGMWKm)/(sum(AreaGMWKm)),
                 POP = sum(POP*AreaGMWKm)/(sum(AreaGMWKm)),
                 Tot_Carbon = sum(Tot_Carbon*AreaGMWKm)/(sum(AreaGMWKm)))
-    
-    sd_PA <- PA_map %>% 
-      as_tibble() %>% 
-      dplyr::select("Fishing_Intensity", "TOT_STOCK", "POP", "Tot_Carbon", "Selection") %>% 
-      group_by(Selection) %>% 
-      summarise(across(1:4, sd),
-                n = n()) %>% 
-      rename_with(~paste0(., "_sd"), Fishing_Intensity:Tot_Carbon)
-    
-    mean_PA <- mean_PA %>% 
-      left_join(sd_PA, by = "Selection")
-    
-    mean_PA
-    
-    mean_PA <- mean_PA %>% 
-      mutate(Fishing_Intensity_margin = qt(.975,df = n-1)*Fishing_Intensity_sd/sqrt(n),
-             TOT_STOCK_margin = qt(.975,df = n-1)*TOT_STOCK_sd/sqrt(n),
-             POP_margin = qt(.975,df = n-1)*POP_sd/sqrt(n),
-             Tot_Carbon_margin = qt(.975,df = n-1)*Tot_Carbon_sd/sqrt(n))
-    
+  
     scientific10 <- function(x) {
       parse(text = gsub("e+", " %*% 10^", scales::scientific_format()(x)))
     }
+    
+    saveRDS(mean_PA, "RDS/Fig4.rds")
     
     max_val <- c(2500, 7.5e+05, 300, 0.06)
     

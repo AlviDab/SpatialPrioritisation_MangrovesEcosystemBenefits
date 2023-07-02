@@ -3,20 +3,8 @@
 #Split the species distribution by biophysical typology and marine province
 
 #Open all the packages needed
-library(tidyverse)
-library(sf)
-library(knitr)
-library(terra)
-library(raster)
-library(prioritizr)
-library(units)
-library(patchwork)
-library(mapview)
-library(viridis)
-library(ggthemes)
-library(rnaturalearth)
-library(rgdal)
-library(tmap)
+pacman::p_load(tidyverse,
+               sf)
 
 #Set the projection
 cCRS <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
@@ -30,6 +18,7 @@ PUs_ID <- PUs %>%
 
 #Planning units species
 PUs_species <- PUs %>% 
+  dplyr::select(!AreaGMWKm) %>% 
   dplyr::select(1:67) #Select only the column with the species of mangroves, the ID and the geometry
 
 ################################################################################

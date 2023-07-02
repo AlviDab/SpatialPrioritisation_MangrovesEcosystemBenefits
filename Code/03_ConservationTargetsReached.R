@@ -3,23 +3,18 @@
 #Analysis of the number of conservation targets reached for incremental area budgets
 #Calculation and plot of the amount of ecosystem services protected
 
-library(tidyverse)
-library(sf)
-library(knitr)
-library(patchwork)
-library(viridis)
-library(ggthemes)
+pacman::p_load(tidyverse, sf, knitr, patchwork, viridis, ggthemes)
 
 ## Biodiversity and ecosystem services
 
 # Read the results
-result_BioServ <- readRDS("RDS_rr/1e-4/gurobi/result_BioServ.rds")
-result_BioServ_WDPA <- readRDS("RDS_rr/1e-4/gurobi/result_BioServ_WDPA.rds")
-result_Bio <- readRDS("RDS_rr/1e-4/gurobi/result_Bio.rds")
-result_Bio_WDPA <- readRDS("RDS_rr/1e-4/gurobi/result_Bio_WDPA.rds")
-result_BioServ_AllWDPA <- readRDS("RDS_rr/1e-4/gurobi/result_BioServ_AllWDPA.rds")
-result_Bio_AllWDPA <- readRDS("RDS_rr/1e-4/gurobi/result_Bio_AllWDPA.rds")
-PUs <- readRDS("RDS_rr/PUs_Splitted_I_IV_and_All_9111.rds")
+result_BioServ <- readRDS("RDS/1e-4/gurobi/result_BioServ.rds")
+result_BioServ_WDPA <- readRDS("RDS/1e-4/gurobi/result_BioServ_WDPA.rds")
+result_Bio <- readRDS("RDS/1e-4/gurobi/result_Bio.rds")
+result_Bio_WDPA <- readRDS("RDS/1e-4/gurobi/result_Bio_WDPA.rds")
+result_BioServ_AllWDPA <- readRDS("RDS/1e-4/gurobi/result_BioServ_AllWDPA.rds")
+result_Bio_AllWDPA <- readRDS("RDS/1e-4/gurobi/result_Bio_AllWDPA.rds")
+PUs <- readRDS("RDS/PUs_Splitted_I_IV_and_All_9111.rds")
 ConsFeatures <- readRDS("RDS/ConsFeatures.rds")
 ConsFeatures_NotSplitted <- readRDS("RDS/ConsFeatures_NotSplitted.rds")
 species <- readRDS("RDS/species.rds")
@@ -430,22 +425,55 @@ p3 <- plot_TargetsReached_AllWDPA +
 
 ptot <- wrap_elements(p1) / wrap_elements(p2) / wrap_elements(p3)
 
-# plot_TargetsReached_10 + Plot_Increase_10 + 
-#   plot_TargetsReached100 + Plot_Increase100 +
-#   plot_TargetsReached_1000 + Plot_Increase_1000 +
-#   plot_layout(ncol = 2) +
-#   plot_annotation(tag_levels = 'a') +
-#   theme(plot.tag = element_text(face = 'bold'))
-  
-ggsave("Figures_rr/gurobi/Targets_IncreaseServices.svg",
+ggsave("Figures/gurobi/Targets_IncreaseServices.svg",
          dpi = 1000, units = "cm", width = 16, height = 21) 
 
 
 # Save layers
-saveRDS(ntarget_reached_df_BioServ, "RDS_rr/1e-4/gurobi/ntarget_reached_df_BioServ.rds")
-saveRDS(ntarget_reached_df_BioServ_WDPA, "RDS_rr/1e-4/gurobi/ntarget_reached_df_BioServ_WDPA.rds")
-saveRDS(ntarget_reached_df_BioServ_AllWDPA, "RDS_rr/1e-4/gurobi/ntarget_reached_df_BioServ_AllWDPA.rds")
-saveRDS(Increase_EcoServices_Prct, "RDS_rr/1e-4/gurobi/Increase_EcoServices_Prct.rds")
-saveRDS(Increase_EcoServices_WDPA_Prct, "RDS_rr/1e-4/gurobi/Increase_EcoServices_WDPA_Prct.rds")
-saveRDS(Increase_EcoServices_AllWDPA_Prct, "RDS_rr/1e-4/gurobi/Increase_EcoServices_AllWDPA_Prct.rds")
+saveRDS(ntarget_reached_df_BioServ, "RDS/1e-4/gurobi/ntarget_reached_df_BioServ.rds")
+saveRDS(ntarget_reached_df_BioServ_WDPA, "RDS/1e-4/gurobi/ntarget_reached_df_BioServ_WDPA.rds")
+saveRDS(ntarget_reached_df_BioServ_AllWDPA, "RDS/1e-4/gurobi/ntarget_reached_df_BioServ_AllWDPA.rds")
+saveRDS(Increase_EcoServices_Prct, "RDS/1e-4/gurobi/Increase_EcoServices_Prct.rds")
+saveRDS(Increase_EcoServices_WDPA_Prct, "RDS/1e-4/gurobi/Increase_EcoServices_WDPA_Prct.rds")
+saveRDS(Increase_EcoServices_AllWDPA_Prct, "RDS/1e-4/gurobi/Increase_EcoServices_AllWDPA_Prct.rds")
 
+ntarget_reached_df_Bio <- ntarget_reached_df_Bio %>% 
+  rename(reached_Biodiversity = reached) %>% 
+  dplyr::select(!method)
+
+ntarget_reached_df_BioServ <- ntarget_reached_df_BioServ %>% 
+  rename(reached_Biodiversity_ES = reached) %>% 
+  dplyr::select(!method)
+
+Fig3A <- ntarget_reached_df_Bio %>% 
+  left_join(ntarget_reached_df_BioServ, by = "prct")
+
+ntarget_reached_df_Bio_WDPA <- ntarget_reached_df_Bio_WDPA %>% 
+  rename(reached_Biodiversity = reached) %>% 
+  dplyr::select(!method)
+
+ntarget_reached_df_BioServ_WDPA <- ntarget_reached_df_BioServ_WDPA %>% 
+  rename(reached_Biodiversity_ES = reached) %>% 
+  dplyr::select(!method)
+
+Fig3C <- ntarget_reached_df_Bio_WDPA %>% 
+  left_join(ntarget_reached_df_BioServ_WDPA, by = "prct")
+
+ntarget_reached_df_Bio_AllWDPA <- ntarget_reached_df_Bio_AllWDPA %>% 
+  rename(reached_Biodiversity = reached) %>% 
+  dplyr::select(!method)
+
+ntarget_reached_df_BioServ_AllWDPA <- ntarget_reached_df_BioServ_AllWDPA %>% 
+  rename(reached_Biodiversity_ES = reached) %>% 
+  dplyr::select(!method)
+
+Fig3E <- ntarget_reached_df_Bio %>% 
+  left_join(ntarget_reached_df_BioServ, by = "prct")
+
+Fig3 <- list(Fig3A, Increase_EcoServices_Prct, 
+             Fig3C, Increase_EcoServices_WDPA_Prct, 
+             Fig3E, Increase_EcoServices_AllWDPA_Prct)
+
+names(Fig3) <- c("Fig3A", "Fig3B", "Fig3C", "Fig3D", "Fig3E", "Fig3F")
+
+saveRDS(Fig3, "RDS/Fig3.rds")

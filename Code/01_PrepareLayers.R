@@ -4,20 +4,12 @@
 #Code to prepare all the layers before the prioritisation
 
 #Open all the packages needed
-library(tidyverse)
-library(sf)
-library(knitr)
-library(terra)
-library(raster)
-library(prioritizr)
-library(units)
-library(patchwork)
-library(mapview)
-library(viridis)
-library(ggthemes)
-library(rnaturalearth)
-library(rgdal)
-library(tmap)
+pacman::p_load(tidyverse,
+               sf,
+               terra,
+               raster,
+               rnaturalearth,
+               exactextractr)
 
 ############################################
 #1. Set the various layer for the analysis
@@ -32,7 +24,6 @@ source("Functions/fExtract_CarbonSequestration.R") #Function to select the area 
 source("Functions/fCalculate_BioTypArea.R") #Function to select the area of the PUs
 source("Functions/fIntersect_PointShp.R")
 source("Functions/fRemove_NANearestNeighbourg.R")
-source("Functions/fSelect_WDPA.R")
 source("Functions/fRemoveNA_Coast.R")
 
 #Set the projection
@@ -50,7 +41,7 @@ BioTyptxt <- "Data/Worthington/TNC-006_BiophysicalTypologyMangroves/01_Data/Mang
 
 #1.2. Read the shapefiles and the rasters
 
-#1.2.1 Read, clean and plot the shapefile of GMW
+#1.2.1 Read the shapefile of GMW
 GMW <- GMWtxt %>%
    st_read() %>% #Read the GMW shapefile
    st_transform(crs = cCRS) #Project GMW
@@ -60,37 +51,14 @@ world_map <- ne_countries(scale = "large", returnclass = "sf") %>%
   st_transform(crs = cCRS) %>% #I project the crs
   st_make_valid() #I make the shapefile valid
 
-#1.2.3. Read, clean and plot IUCN data
-IUCN <- IUCNtxt %>% 
-  st_read() %>% #I read the file of the IUCN
-  st_transform(crs = cCRS) %>% #I re-project the shapefile 
-  dplyr::filter(compiler == "IUCN") #I keep all the data that are compiled by IUCN, removing two species with wrong distribution
-
-#1.2.4. Read marine provinces
-MarineProvinces <- st_read(MarineProvincestxt) %>%
-  st_transform(crs = cCRS) %>% 
-  filter(TYPE == "MEOW") #Filter only the MEOW provinces
-
-#1.2.5. Read mangroves biophysical typology
-BioTyp <- st_read(BioTyptxt) %>%
-  st_transform(crs = cCRS) #I project the crs of the GMW to meters
-
-#1.2.6. Read, clean and plot cost Layer
-Fish <- raster(Fisheriestxt) #I read the raster file of fisheries (used raster because with terra I was not able to read it)
-
-crs(Fish) <- crs("+proj=cea +lat_ts=0 +lon_0=-160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs") #I set the CRS of the file
-
-Fish <- as(Fish, "SpatRaster") #Produce a terra raster file
-  
-#1.2.7 Read and clean data of coastal protection (Menéndez et al. 2020)
-Coast <- st_read(Coasttxt) %>% #Read the shapefile
-  st_transform(crs = cCRS) #Transform the crs
-
 ####################################
 #2. Production of the planning units
 
-#2.1.1 Produce the planning units
+#2.1. Produce the planning units
 PUs <- fCreate_PUs(400) #Produce the planning units for the GMW selected (the number is the area in km^2)
+
+PUs <- PUs %>% 
+  mutate(ID = as.numeric(rownames(.))) #Add a new column called ID with rownames as value for each row.
   
 Large_PUs <- fCreate_PUs(40000) #Produce planning units for the aggregated results
   
@@ -101,13 +69,26 @@ PUs <- fSelect_PUsArea(PUs, GMW)
 #2.3 Set the conservation features for each PUs
 
 #2.3.1 IUCN Mangroves species distribution
+IUCN <- IUCNtxt %>% 
+  st_read() %>% #I read the file of the IUCN
+  st_transform(crs = cCRS) %>% #I re-project the shapefile 
+  dplyr::filter(compiler == "IUCN") #I keep all the data that are compiled by IUCN, removing two species with wrong distribution
+
 result <- fIntersection_IUCNnearestfeature(PUs, IUCN) #Intersection between the 
                                                       #planning units and the IUCN Red list data
 PUs <- result[[1]]
 nPUs <- result[[2]] #number of PUs that intercept with each species distribution
 
+rm(IUCN)
+
 #2.3.2 Marine Provinces
+MarineProvinces <- st_read(MarineProvincestxt) %>%
+  st_transform(crs = cCRS) %>% 
+  filter(TYPE == "MEOW") #Filter only the MEOW provinces
+
 PUs$Province <- MarineProvinces$PROVINC[as_vector(st_nearest_feature(PUs, MarineProvinces))] #Define in what province you can find the PU
+
+rm(MarineProvinces)
 
 PUs$AreaGMWKm1 <- PUs$AreaGMWKm #Duplicate the column AreaGMWKm
 
@@ -117,17 +98,27 @@ PUs <- PUs %>%
   st_sf() #Transform in a sf
 
 #2.3.3 Biophysical typology
+BioTyp <- st_read(BioTyptxt) %>%
+  st_transform(crs = cCRS) #I project the crs of the GMW to meters
+
 BioTyp <- BioTyp %>%
   dplyr::select(Class, Sedimentar)
 
 PUs <- fCalc_BioTypArea() #Calculate the area of each biophysical typology in a PU
 
+rm(BioTyp)
+
 #2.4 Set ecosystem services layers
 
 #2.4.1 Fisheries benefits
+Fish <- raster(Fisheriestxt) #I read the raster file of fisheries (used raster because with terra I was not able to read it)
+
+crs(Fish) <- crs("+proj=cea +lat_ts=0 +lon_0=-160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs") #I set the CRS of the file
+
+Fish <- as(Fish, "SpatRaster") #Produce a terra raster file
+
 #I remove the planning unit that create problems when reprojected
 PUs_Fish <- PUs %>%
-  mutate(ID = as.numeric(rownames(PUs))) %>% #Add a new column called ID with rownames as value for each row.
   slice(1:9110)
 
 PUs_Fish <- PUs_Fish %>%
@@ -142,11 +133,18 @@ FishCost <- exact_extract(Fish, PUs_Fish, c('mean')) %>% #I extract the data of 
 PUs <- PUs %>%
   left_join(FishCost, by = "ID") #Column of the fishing intensity layer
 
+rm(FishCost)
+rm(Fish)
+
 #2.4.2 Coastal protection
+Coast <- st_read(Coasttxt) %>% #Read the shapefile
+  st_transform(crs = cCRS) #Transform the crs
 
 #Calculate mean value of coastal protection for each PU
 PUs <- PUs %>% 
   fIntersect_PointShp(Coast, c("TOT_STOCK", "POP"))
+
+rm(Coast)
 
 #2.4.3 Aboveground biomass
 PUs <- Extract_Carbon(AGBtxt) %>%  #I extract the carbon cost
@@ -173,11 +171,7 @@ PUs$Tot_Carbon <- (PUs$soil_carbon + PUs$biomass_carbon)*(10^-4) #Transform from
 #####################################
 #3. WDPA, countries and continents 
 
-#3.1. Intersect planning units with WDPA dataset
-PUs <- fSelectWDPA(PUs) %>% 
-  mutate(Protected = as.logical(Protected))
-
-#3.2. Intersect with countries and EEZ
+#3.1. Intersect with countries and EEZ
 #PUs by nation
 EEZ <- st_read("Data/EEZ/eez_v11.shp") %>% 
   st_transform(cCRS)
@@ -201,7 +195,7 @@ PUs <- PUs %>%
 
 PUs <- fNN_x(PUs, country)
 
-#3.3. PUs by Continent
+#3.2. PUs by Continent
 library(countrycode)
 countries <- data.frame(country = PUs$country)
 
@@ -214,7 +208,7 @@ PUs$country <- countrycode(sourcevar = countries[, "country"],
                            destination = "country.name")
 
 # Solve overseas regions of France problem
-GUF <- read("Data/Countries/GUF_adm0.shp") %>%
+GUF <- st_read("Data/Countries/GUF_adm0.shp") %>%
   st_transform(cCRS)
 
 GLP <- st_read("Data/Countries/GLP_adm0.shp") %>%
@@ -266,16 +260,16 @@ PUs <- PUs %>%
   add_row(a) %>% 
   arrange(ID)
 
-#3.4. Solve Netherlands problem considered part of Europe even though they are in the Americas region
-result_BioServ_WDPA <- result_BioServ_WDPA %>% 
+#3.3. Solve Netherlands problem considered part of Europe even though they are in the Americas region
+PUs <- PUs %>% 
   mutate(continent = case_when(country == "Netherlands" ~ "Americas", 
                    TRUE ~ PUs$continent))
 
 #transform all the values to numeric and the values <1e-6 to 0
  PUs <- PUs %>% 
-   mutate(across(!geometry & !Protected & !country & !continent, 
+   mutate(across(!geometry & !country & !continent, 
                  as.numeric)) %>% 
-   mutate(across(!geometry & !Protected & !country & !continent,
+   mutate(across(!geometry & !country & !continent,
                  ~ case_when(. <= 1e-6 ~ 0, 
                              TRUE ~ .)))
  

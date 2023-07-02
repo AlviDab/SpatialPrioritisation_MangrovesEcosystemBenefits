@@ -32,9 +32,9 @@ cCRS <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +n
 
 #Open PUs and large_PUs
 
-PUs <- readRDS("RDS_rr/PUs_Splitted_I_IV_and_All_9111.rds") 
+PUs <- readRDS("RDS/PUs_Splitted_I_IV_and_All_9111.rds") 
 PUs_NotSplitted <- readRDS("RDS/PUs_NotSplitted.rds")
-Large_PUs <- readRDS("RDS/Large_PUs_40000.rds")
+Large_PUs <- readRDS("RDS/Large_PUs.rds")
 
 #Percentage of mangroves protected
 Percentage_protected <- PUs %>% 
@@ -52,7 +52,7 @@ PUs %>%
   as_tibble() %>% #Transform to tibble
   summarise(sum(AreaWDPA)) #Sum area of mangroves covered by IUCN I-IV
 
-18730/136752.8*100 #~0.5% more respect to what was estimated
+19403/136752.8*100 #~0.5% more respect to what was estimated
 
 #Scaling
 library(scales)
@@ -94,6 +94,7 @@ PUs <- PUs %>%
 #Calculate species distribution range
 species <- PUs_NotSplitted %>% 
   as_tibble() %>% 
+  select(!AreaGMWKm) %>% 
   dplyr::select(3:67) #Select only the species columns
 
 species <- species %>% 
@@ -254,14 +255,14 @@ for(l in c(10, 100, 1000)) {
     st_as_sf() #Transform to shapefile
   
   # Save the resulting shapefile
-  saveRDS(result_BioServ, paste0("RDS_rr/1e-4/gurobi/result_BioServ_", i,".rds"))
+  saveRDS(result_BioServ, paste0("RDS/1e-4/gurobi/result_BioServ_", i,".rds"))
 }
 
 ################################################################################
-result_BioServ_10 <- readRDS("RDS_rr/1e-4/gurobi/result_BioServ_10.rds")
-result_BioServ_100 <- readRDS("RDS_rr/1e-4/gurobi/result_BioServ_100.rds")
-result_BioServ_1000 <- readRDS("RDS_rr/1e-4/gurobi/result_BioServ_1000.rds")
-result_Bio <- readRDS("RDS_rr/1e-4/gurobi/result_Bio.rds")
+result_BioServ_10 <- readRDS("RDS/1e-4/gurobi/result_BioServ_10.rds")
+result_BioServ_100 <- readRDS("RDS/1e-4/gurobi/result_BioServ_100.rds")
+result_BioServ_1000 <- readRDS("RDS/1e-4/gurobi/result_BioServ_1000.rds")
+result_Bio <- readRDS("RDS/1e-4/gurobi/result_Bio.rds")
 
 #Calculate number of biodiversity features that reach the target increasing the area target
 
@@ -350,8 +351,8 @@ fplot_targets <- function(ntarget_reached) {
                        labels=c(c("Biodiversity",
                                   "Biodiversity & ecosystem services")),
                        values=c("#2D3047",
-                                         "#93B7BE")) +
-                                           xlab("Mangroves selected in priority areas (%)") +
+                                "#93B7BE")) +
+    xlab("Mangroves selected in priority areas (%)") +
     ylab("Biodiversity targets reached (%)") +
     theme_bw(base_size = 6.5) +
     theme(legend.position = "none",
@@ -574,12 +575,39 @@ p3 <- plot_TargetsReached_1000 +
 
 ptot <- wrap_elements(p1) / wrap_elements(p2) / wrap_elements(p3)
 
-# plot_TargetsReached_10 + Plot_Increase_10 + 
-#   plot_TargetsReached100 + Plot_Increase100 +
-#   plot_TargetsReached_1000 + Plot_Increase_1000 +
-#   plot_layout(ncol = 2) +
-#   plot_annotation(tag_levels = 'a') +
-#   theme(plot.tag = element_text(face = 'bold'))
-
-ggsave("Figures_rr/gurobi/Targets_IncreaseServices_Weights.svg",
+ggsave("Figures/gurobi/Targets_IncreaseServices_Weights.svg",
        dpi = 1000, units = "cm", width = 16, height = 21) 
+
+ntarget_reached_df_Bio <- ntarget_reached_df_Bio %>% 
+  rename(reached_Biodiversity = reached) %>% 
+  dplyr::select(!method)
+
+ntarget_reached_df_BioServ_10 <- ntarget_reached_df_BioServ_10 %>% 
+  rename(reached_Biodiversity_ES = reached) %>% 
+  dplyr::select(!method)
+
+SuppFig10A <- ntarget_reached_df_Bio %>% 
+  left_join(ntarget_reached_df_BioServ_10, by = "prct")
+
+ntarget_reached_df_BioServ_100 <- ntarget_reached_df_BioServ_100 %>% 
+  rename(reached_Biodiversity_ES = reached) %>% 
+  dplyr::select(!method)
+
+SuppFig10C <- ntarget_reached_df_Bio %>% 
+  left_join(ntarget_reached_df_BioServ_100, by = "prct")
+
+ntarget_reached_df_BioServ_1000 <- ntarget_reached_df_BioServ_1000 %>% 
+  rename(reached_Biodiversity_ES = reached) %>% 
+  dplyr::select(!method)
+
+SuppFig10E <- ntarget_reached_df_Bio %>% 
+  left_join(ntarget_reached_df_BioServ_1000, by = "prct")
+
+#Data Source Supplementary Fig.10
+SuppFig10 <- list(SuppFig10A, Increase_EcoServices_10_Prct, 
+                  SuppFig10C, Increase_EcoServices_100_Prct, 
+                  SuppFig10E, Increase_EcoServices_1000_Prct)
+
+names(SuppFig10) <- c("SuppFig10A", "SuppFig10B", "SuppFig10C", "SuppFig10D", "SuppFig10E", "SuppFig10F")
+
+saveRDS(SuppFig10, "RDS/SuppFig10.rds")

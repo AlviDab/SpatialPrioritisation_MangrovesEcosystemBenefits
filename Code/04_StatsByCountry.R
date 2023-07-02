@@ -18,16 +18,16 @@ source("Functions/fStat_CountryContinent_PAs.r")
 source("Functions/fStat_CountryContinent_AllPAs.r")
 source("Functions/fPlot_Circular.r")
 
-result_BioServ <- readRDS("RDS_rr/1e-4/gurobi/result_BioServ.rds")
-result_BioServ_WDPA <- readRDS("RDS_rr/1e-4/gurobi/result_BioServ_WDPA.rds")
-result_BioServ_AllWDPA <- readRDS("RDS_rr/1e-4/gurobi/result_BioServ_AllWDPA.rds")
+result_BioServ <- readRDS("RDS/1e-4/gurobi/result_BioServ.rds")
+result_BioServ_WDPA <- readRDS("RDS/1e-4/gurobi/result_BioServ_WDPA.rds")
+result_BioServ_AllWDPA <- readRDS("RDS/1e-4/gurobi/result_BioServ_AllWDPA.rds")
 PUs <- readRDS("RDS/PUs_Splitted_I_IV_and_All_9111.rds")
-PUs_NotSplitted <- readRDS("RDS_rr/1e-4/gurobi/PUs_NotSplitted.rds")
-ConsFeatures <- readRDS("RDS_rr/ConsFeatures.rds")
-ConsFeatures_NotSplitted <- readRDS("RDS_rr/ConsFeatures_NotSplitted.rds")
-species <- readRDS("RDS_rr/species.rds")
-result_BioServ_WDPA_rmPA <- readRDS("RDS_rr/1e-4/gurobi/result_BioServ_WDPA_rmPA.rds")
-result_BioServ_AllWDPA_rmPA <- readRDS("RDS_rr/1e-4/gurobi/result_BioServ_AllWDPA_rmPA.rds")
+PUs_NotSplitted <- readRDS("RDS/PUs_NotSplitted.rds")
+ConsFeatures <- readRDS("RDS/ConsFeatures.rds")
+ConsFeatures_NotSplitted <- readRDS("RDS/ConsFeatures_NotSplitted.rds")
+species <- readRDS("RDS/species.rds")
+result_BioServ_WDPA_rmPA <- readRDS("RDS/1e-4/gurobi/result_BioServ_WDPA_rmPA.rds")
+result_BioServ_AllWDPA_rmPA <- readRDS("RDS/1e-4/gurobi/result_BioServ_AllWDPA_rmPA.rds")
 
 ################################################################################
 
@@ -74,7 +74,7 @@ Stat_CountryContinent <- c(Stat_CountryContinent_10, Stat_CountryContinent_30, S
 # Save in an excel file
 list_sheets <- c("10_Country", "10_Continent", "30_Country", "30_Continent", "50_Country", "50_Continent")
 
-file <- paste("Figures_rr/gurobi/", sep = "")
+file <- paste("Figures/gurobi/", sep = "")
 
 lapply(seq_along(Stat_CountryContinent), function(z) {
   write.xlsx(Stat_CountryContinent[[z]], paste0(file, "Stat_CountryContinent.xlsx"), sheetName = list_sheets[z], append = TRUE) 
@@ -91,7 +91,7 @@ Stat_CountryContinent_WDPA <- c(Stat_CountryContinent_PAs, Stat_CountryContinent
 # Save in an excel file
 list_sheets <- c("WDPA_country", "WDPA_continent", "+16.8%_Country_WDPA", "+16.8%_Continent_WDPA", "+36.8%_Country_WDPA", "+36.8%_Continent_WDPA")
 
-file <- paste("Figures_rr/gurobi/", sep = "")
+file <- paste("Figures/gurobi/", sep = "")
 
 lapply(seq_along(Stat_CountryContinent_WDPA), function(z) {
   write.xlsx(Stat_CountryContinent_WDPA[[z]], paste0(file, "Stat_CountryContinent_WDPA.xlsx"), sheetName = list_sheets[z], append = TRUE) 
@@ -111,7 +111,7 @@ Stat_CountryContinent_AllWDPA <- c(Stat_CountryContinent_AllPAs, Stat_CountryCon
 # Save in an excel file
 list_sheets <- c("AllWDPA_country", "AllWDPA_continent", "+7%_Country_AllWDPA", "+7%_Continent_AllWDPA")
 
-file <- paste("Figures_rr/gurobi/", sep = "")
+file <- paste("Figures/gurobi/", sep = "")
 
 lapply(seq_along(Stat_CountryContinent_AllWDPA), function(z) {
   write.xlsx(Stat_CountryContinent_WDPA[[z]], paste0(file, "Stat_CountryContinent_AllWDPA.xlsx"), sheetName = list_sheets[z], append = TRUE) 
@@ -404,7 +404,32 @@ p5 <- circ_fish +
 ptot <- wrap_elements(p1) + plot_spacer() + wrap_elements(p2) + wrap_elements(p3) + wrap_elements(p4) + wrap_elements(p5) +
   plot_layout(ncol = 2)
 
-ggsave("Figures_rr/gurobi/CircularBarplot.svg", width = 17.0, height = 25.6, units = "cm")
+ggsave("Figures/gurobi/CircularBarplot.svg", width = 17.0, height = 25.6, units = "cm")
+
+df_circbp <- df_circbp %>% 
+  rename(MangroveArea = value)
+
+df_circbp_Properties <- df_circbp_Properties %>% 
+  rename(Properties = value)
+
+df_circbp_Population <- df_circbp_Population %>% 
+  rename(Population = value)
+
+df_circbp_Carbon <- df_circbp_Carbon %>% 
+  rename(Carbon = value)
+
+df_circbp_Fishing <- df_circbp_Fishing %>% 
+  rename(FishingIntensity = value)
+
+#Data source Supplementary Fig. 4
+
+SuppFig4 <- df_circbp %>% 
+  full_join(df_circbp_Properties, by = c("feature", "group", "target")) %>% 
+  full_join(df_circbp_Population, by = c("feature", "group", "target")) %>% 
+  full_join(df_circbp_Carbon, by = c("feature", "group", "target"))  %>% 
+  full_join(df_circbp_Fishing, by = c("feature", "group", "target")) 
+
+saveRDS(SuppFig4, "RDS/SuppFig4.rds")
 
 ################################################################################
 # BUilding on already protected areas
@@ -637,7 +662,32 @@ p5 <- circ_fish +
 ptot <- wrap_elements(p1) + plot_spacer() + wrap_elements(p2) + wrap_elements(p3) + wrap_elements(p4) + wrap_elements(p5) +
   plot_layout(ncol = 2)
 
-ggsave("Figures_rr/gurobi/CircularBarplot_WDPA.svg", width = 17.0, height = 25.6, units = "cm")
+ggsave("Figures/gurobi/CircularBarplot_WDPA.svg", width = 17.0, height = 25.6, units = "cm")
+
+df_circbp <- df_circbp %>% 
+  rename(MangroveArea = value)
+
+df_circbp_Properties <- df_circbp_Properties %>% 
+  rename(Properties = value)
+
+df_circbp_Population <- df_circbp_Population %>% 
+  rename(Population = value)
+
+df_circbp_Carbon <- df_circbp_Carbon %>% 
+  rename(Carbon = value)
+
+df_circbp_Fishing <- df_circbp_Fishing %>% 
+  rename(FishingIntensity = value)
+
+#Data source Fig. 1
+
+Fig1 <- df_circbp %>% 
+  full_join(df_circbp_Properties, by = c("feature", "group", "target")) %>% 
+  full_join(df_circbp_Population, by = c("feature", "group", "target")) %>% 
+  full_join(df_circbp_Carbon, by = c("feature", "group", "target"))  %>% 
+  full_join(df_circbp_Fishing, by = c("feature", "group", "target")) 
+
+saveRDS(Fig1, "RDS/Fig1.rds")
 
 ################################################################################
 # BUilding on all already protected areas
@@ -860,5 +910,29 @@ p5 <- circ_fish +
 ptot <- wrap_elements(p1) + plot_spacer() + wrap_elements(p2) + wrap_elements(p3) + wrap_elements(p4) + wrap_elements(p5) +
   plot_layout(ncol = 2)
 
-ggsave("Figures_rr/gurobi/CircularBarplot_AllWDPA.svg", width = 17.0, height = 25.6, units = "cm")
+ggsave("Figures/gurobi/CircularBarplot_AllWDPA.svg", width = 17.0, height = 25.6, units = "cm")
 
+df_circbp <- df_circbp %>% 
+  rename(MangroveArea = value)
+
+df_circbp_Properties <- df_circbp_Properties %>% 
+  rename(Properties = value)
+
+df_circbp_Population <- df_circbp_Population %>% 
+  rename(Population = value)
+
+df_circbp_Carbon <- df_circbp_Carbon %>% 
+  rename(Carbon = value)
+
+df_circbp_Fishing <- df_circbp_Fishing %>% 
+  rename(FishingIntensity = value)
+
+#Data source Supplementary Fig.3
+
+SuppFig3 <- df_circbp %>% 
+  full_join(df_circbp_Properties, by = c("feature", "group", "target")) %>% 
+  full_join(df_circbp_Population, by = c("feature", "group", "target")) %>% 
+  full_join(df_circbp_Carbon, by = c("feature", "group", "target"))  %>% 
+  full_join(df_circbp_Fishing, by = c("feature", "group", "target")) 
+
+saveRDS(SuppFig3, "RDS/SuppFig3.rds")

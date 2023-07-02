@@ -3,11 +3,15 @@
 
 #Supplementary analysis to improve the manuscript
 ################################################################################
+pacman::p_load(tidyverse, sf)
+
 #Plot correlation matrix using kappa index
-result_BioServ <- readRDS("RDS_rr/1e-4/gurobi/result_BioServ.rds")
-result_Bio <- readRDS("RDS_rr/1e-4/gurobi/result_Bio.rds")
-result_BioServ_WDPA <- readRDS("RDS_rr/1e-4/gurobi/result_Bio_WDPA.rds")
-result_Bio_WDPA <- readRDS("RDS_rr/1e-4/gurobi/result_Bio_WDPA.rds")
+result_BioServ <- readRDS("RDS/1e-4/gurobi/result_BioServ.rds")
+result_Bio <- readRDS("RDS/1e-4/gurobi/result_Bio.rds")
+result_BioServ_WDPA <- readRDS("RDS/1e-4/gurobi/result_Bio_WDPA.rds")
+result_Bio_WDPA <- readRDS("RDS/1e-4/gurobi/result_Bio_WDPA.rds")
+species <- readRDS("RDS/species.rds")
+ConsFeatures <- readRDS("RDS/ConsFeatures.rds")
 
 source("Functions/fCreate_Kappa.R")
 
@@ -33,7 +37,7 @@ Kappa <- fcreate_kappacorrplot(list(result_BioServ, result_Bio, result_BioServ_W
                                                                                                          "Protected areas, biodiversity and ecosystem services",
                                                                                                          "Protected areas and biodiversity"))
 
-png("Figures_rr/gurobi/Kappa.png", width = 30, height = 25, units = "cm", res = 300)
+png("Figures/gurobi/Kappa.png", width = 30, height = 25, units = "cm", res = 300)
 
 Kappa$plot()
 
@@ -41,7 +45,7 @@ dev.off()
 
 ################################################################################
 #Target reached PAs by species
-PUs <- readRDS("RDS_rr/PUs_Splitted_I_IV_and_All_9111.rds")
+PUs <- readRDS("RDS/PUs_Splitted_I_IV_and_All_9111.rds")
 
 #WDPA I-IV
 targets_reached_PAs <- PUs %>%

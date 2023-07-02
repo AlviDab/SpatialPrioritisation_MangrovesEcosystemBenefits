@@ -24,9 +24,9 @@ cCRS <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +n
 
 #Open PUs and large_PUs
 
-PUs <- readRDS("RDS_rr/PUs_Splitted_I_IV_and_All_9111.rds") 
+PUs <- readRDS("RDS/PUs_Splitted_I_IV_and_All_9111.rds") 
 PUs_NotSplitted <- readRDS("RDS/PUs_NotSplitted.rds")
-Large_PUs <- readRDS("RDS/Large_PUs_40000.rds")
+Large_PUs <- readRDS("RDS/Large_PUs.rds")
 
 #Percentage of mangroves protected
 Percentage_protected <- PUs %>% 
@@ -88,13 +88,14 @@ PUs <- PUs %>%
 #Calculate species distribution range
 species <- PUs_NotSplitted %>% 
   as_tibble() %>% 
+  dplyr::select(!AreaGMWKm) %>% 
   dplyr::select(3:67) #Select only the species columns
 
 species <- species %>% 
   summarise_all(sum) #Calculate the range of each species
 
-dir.create("RDS_rr/1e-4/gurobi", recursive = TRUE)
-saveRDS(species, "RDS_rr/species.rds") #Save the RDS
+dir.create("RDS/1e-4/gurobi", recursive = TRUE)
+saveRDS(species, "RDS/species.rds") #Save the RDS
 
 #Calculate species targets following Rodrigues et al. 2014 and Butchart et al. 2015
 spp_range_size_km2 <- seq(0.01, max(species), by = 100)
@@ -174,8 +175,8 @@ ConsFeatures <- ConsFeatures %>%
   mutate(type = case_when(amount < 1 ~ "Species", #When the target is <1 the type is species
                           TRUE ~ "EcoServices")) #Otherwise is EcoServices
 
-saveRDS(ConsFeatures, "RDS_rr/ConsFeatures.rds") #Save RDS
-saveRDS(ConsFeatures_NotSplitted, "RDS_rr/ConsFeatures_NotSplitted.rds")
+saveRDS(ConsFeatures, "RDS/ConsFeatures.rds") #Save RDS
+saveRDS(ConsFeatures_NotSplitted, "RDS/ConsFeatures_NotSplitted.rds")
 
 ################################################################################
 # Optimisation biodiversity and ecosystem services
@@ -253,19 +254,19 @@ result_BioServ <- result_BioServ %>%
   st_as_sf() #Transform to shapefile
 
 # Save the resulting shapefile
-saveRDS(result_BioServ, paste0("RDS_rr/1e-4/gurobi/result_BioServ.rds"))
+saveRDS(result_BioServ, paste0("RDS/1e-4/gurobi/result_BioServ.rds"))
 
 # World map
 plot_global_map <- fPlot_Rank(result_BioServ, Large_PUs, palet = "viridis")
 
-dir.create("Figures_rr/gurobi/", recursive = TRUE)
+dir.create("Figures/gurobi/", recursive = TRUE)
 
-ggsave(plot = plot_global_map, paste0("Figures_rr/gurobi/Rank_Global_40000.svg"),
+ggsave(plot = plot_global_map, paste0("Figures/gurobi/Rank_Global_40000.svg"),
        dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
 
 plot_results <- fPlot_PUsValues(result_BioServ, "rank", scale_fill = "viridis") 
 
-ggsave(plot = plot_results, paste0("Figures_rr/gurobi/Rank_Global.svg"),
+ggsave(plot = plot_results, paste0("Figures/gurobi/Rank_Global.svg"),
        dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
 
 ################################################################################
@@ -339,16 +340,16 @@ result_BioServ_WDPA <- result_BioServ_WDPA %>%
   st_as_sf
 
 # Save the resulting shapefile
-saveRDS(result_BioServ_WDPA, "RDS_rr/1e-4/gurobi/result_BioServ_WDPA.rds")
-saveRDS(result_BioServ_WDPA_rmPA, "RDS_rr/1e-4/gurobi/result_BioServ_WDPA_rmPA.rds")
+saveRDS(result_BioServ_WDPA, "RDS/1e-4/gurobi/result_BioServ_WDPA.rds")
+saveRDS(result_BioServ_WDPA_rmPA, "RDS/1e-4/gurobi/result_BioServ_WDPA_rmPA.rds")
 
 plot_global_map <- fPlot_Rank(result_BioServ_WDPA_rmPA, Large_PUs, palet = "viridis",
                               brk = c(14, 25, 50, 75, 100), lm = c(14, 100)) 
-ggsave(plot = plot_global_map, paste0("Figures_rr/gurobi/Rank_Global_40000_WDPA.svg"),
+ggsave(plot = plot_global_map, paste0("Figures/gurobi/Rank_Global_40000_WDPA.svg"),
        dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
 
 plot_results <- fPlot_PUsValues(result_BioServ_WDPA_rmPA, "rank", scale_fill = "viridis") 
-ggsave(plot = plot_results, paste0("Figures_rr/gurobi/Rank_Global_WDPA.svg"),
+ggsave(plot = plot_results, paste0("Figures/gurobi/Rank_Global_WDPA.svg"),
        dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
 
 ################################################################################
@@ -421,16 +422,16 @@ result_BioServ_AllWDPA <- result_BioServ_AllWDPA %>%
   st_as_sf
 
 # Save the resulting shapefile
-saveRDS(result_BioServ_AllWDPA, "RDS_rr/1e-4/gurobi/result_BioServ_AllWDPA.rds")
-saveRDS(result_BioServ_AllWDPA_rmPA, "RDS_rr/1e-4/gurobi/result_BioServ_AllWDPA_rmPA.rds")
+saveRDS(result_BioServ_AllWDPA, "RDS/1e-4/gurobi/result_BioServ_AllWDPA.rds")
+saveRDS(result_BioServ_AllWDPA_rmPA, "RDS/1e-4/gurobi/result_BioServ_AllWDPA_rmPA.rds")
 
 plot_global_map <- fPlot_Rank(result_BioServ_AllWDPA_rmPA, Large_PUs, palet = "viridis",
                               brk = c(44, 50, 75, 100), lm = c(44, 100)) 
-ggsave(plot = plot_global_map, paste0("Figures_rr/gurobi/Rank_Global_40000_AllWDPA.svg"),
+ggsave(plot = plot_global_map, paste0("Figures/gurobi/Rank_Global_40000_AllWDPA.svg"),
        dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
 
 plot_results <- fPlot_PUsValues(result_BioServ_AllWDPA_rmPA, "rank", scale_fill = "viridis") 
-ggsave(plot = plot_results, paste0("Figures_rr/gurobi/Rank_Global_AllWDPA.svg"),
+ggsave(plot = plot_results, paste0("Figures/gurobi/Rank_Global_AllWDPA.svg"),
        dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
 
 ################################################################################
@@ -517,14 +518,14 @@ result_Bio <- result_Bio %>%
   st_as_sf()
 
 # Save the resulting shapefile
-saveRDS(result_Bio, "RDS_rr/1e-4/gurobi/result_Bio.rds")
+saveRDS(result_Bio, "RDS/1e-4/gurobi/result_Bio.rds")
 # 
 plot_global_map <- fPlot_Rank(result_Bio, Large_PUs, palet = "viridis")
-ggsave(plot = plot_global_map, "Figures_rr/gurobi/Rank_Global_Bio_40000.svg",
+ggsave(plot = plot_global_map, "Figures/gurobi/Rank_Global_Bio_40000.svg",
        dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
 
 plot_results <- fPlot_PUsValues(result_Bio, "rank", scale_fill = "viridis")
-ggsave(plot = plot_results, "Figures_rr/gurobi/Rank_Global_Bio.svg",
+ggsave(plot = plot_results, "Figures/gurobi/Rank_Global_Bio.svg",
        dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
 
 ################################################################################
@@ -602,10 +603,10 @@ result_Bio_WDPA <- result_Bio_WDPA %>%
   st_as_sf
 
 # Save the resulting shapefile
-saveRDS(result_Bio_WDPA, paste0("RDS_rr/1e-4/gurobi/result_Bio_WDPA.rds"))
+saveRDS(result_Bio_WDPA, paste0("RDS/1e-4/gurobi/result_Bio_WDPA.rds"))
 
 plot_results <- fPlot_PUsValues(result_Bio_WDPA_rmPA, "rank", scale_fill = "viridis") 
-ggsave(plot = plot_results, paste0("Figures_rr/gurobi/Rank_Global_Bio_WDPA.svg"),
+ggsave(plot = plot_results, paste0("Figures/gurobi/Rank_Global_Bio_WDPA.svg"),
        dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)
 
 ################################################################################
@@ -683,8 +684,8 @@ result_Bio_AllWDPA <- result_Bio_AllWDPA %>%
   st_as_sf
 
 # Save the resulting shapefile
-saveRDS(result_Bio_AllWDPA, paste0("RDS_rr/1e-4/gurobi/result_Bio_AllWDPA.rds"))
+saveRDS(result_Bio_AllWDPA, paste0("RDS/1e-4/gurobi/result_Bio_AllWDPA.rds"))
 
 plot_results <- fPlot_PUsValues(result_Bio_AllWDPA_rmPA, "rank", scale_fill = "viridis") 
-ggsave(plot = plot_results, paste0("Figures_rr/gurobi/Rank_Global_Bio_AllWDPA.svg"),
+ggsave(plot = plot_results, paste0("Figures/gurobi/Rank_Global_Bio_AllWDPA.svg"),
        dpi = 1000, width = 18, height = 9, units = "cm", limitsize = FALSE)

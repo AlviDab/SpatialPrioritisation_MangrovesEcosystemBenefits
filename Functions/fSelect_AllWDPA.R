@@ -84,5 +84,7 @@ fSelect_AllWDPA <- function(PUs) {
   PUs <- PUs %>% 
     mutate(Protected_I_VI = as.logical(Protected_I_VI))
   
-  saveRDS(PUs, "RDS/PUs_Splitted_Protection_I_VI.rds")
+  saveRDS(PUs, "RDS/PUs_Splitted_Protection_I_VI_9119.rds")
+  
+  return(PUs)
 }

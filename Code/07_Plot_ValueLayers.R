@@ -19,9 +19,9 @@ cCRS <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +n
 source("Functions/fPlot_PUsValues.R")
 
 species <- readRDS("RDS/species.rds")
-PUs <- readRDS("RDS/PUs_Splitted.rds")
+PUs <- readRDS("RDS/PUs_Splitted_I_IV_and_All_9111.rds")
 PUs_NotSplitted <- readRDS("RDS/PUs_NotSplitted.rds")
-Large_PUs <- readRDS("RDS/Large_PUs_40000.rds")
+Large_PUs <- readRDS("RDS/Large_PUs.rds")
 species <- readRDS("RDS/species.rds")
 
 #Plot of fishing intensity
@@ -120,7 +120,7 @@ Plot_WDPA <- ggplot() +
         rect = element_rect(fill = "transparent"),
         panel.background = element_blank())
 
-ggsave(plot = Plot_WDPA, "Figures_rr/gurobi/WDPA.png", 
+ggsave(plot = Plot_WDPA, "Figures/gurobi/WDPA.png", 
        dpi = 1000, width = 17, height = 10, units = "cm", limitsize = FALSE)
 
 #Plot the PAs map
@@ -134,7 +134,7 @@ Plot_AllWDPA <- ggplot() +
         rect = element_rect(fill = "transparent"),
         panel.background = element_blank())
 
-ggsave(plot = Plot_AllWDPA, "Figures_rr/gurobi/AllWDPA.png", 
+ggsave(plot = Plot_AllWDPA, "Figures/gurobi/AllWDPA.png", 
        dpi = 1000, width = 17, height = 10, units = "cm", limitsize = FALSE)
 
 

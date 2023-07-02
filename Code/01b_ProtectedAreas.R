@@ -1,7 +1,7 @@
 # load packages
-library(wdpar)
-library(dplyr)
-library(sf)
+pacman::p_load(wdpar,
+               dplyr,
+               sf)
 
 #Set the projection
 cCRS <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
@@ -14,7 +14,6 @@ WDPA1 <- st_read("Data/WDPA_poly/WDPA_WDOECM_Feb2022_Public_all_shp-polygons1.sh
 PUs <- PUs %>% 
   st_transform(crs = "EPSG:4326")
 
-#Remove invalid features that are 475, 3690, 4458, 17087, 56357, then 56353, then 9111, then 9111
 #Find invalid features
 logi_int <- st_is_valid(WDPA1)
 
@@ -236,15 +235,20 @@ WDPA_123_clean <- WDPA_123_clean %>%
 
 saveRDS(WDPA_123_clean, "RDS/WDPA_polygon_points_123_clean.rds")
 
+WDPA_123_clean <- readRDS("RDS/WDPA_polygon_points_123_clean.rds")
+
 #Read again the PUs
 PUs <- readRDS("RDS/PUs_Splitted.rds") %>% 
   st_transform(cCRS)
 
 source("Functions/fSelect_AllWDPA.R")
+source("Functions/fSelect_WDPA.R")
 
 #Calculate how much of the planning units are protected
-PUs <- fSelect_AllWDPA(PUs) %>% 
-  mutate(Protected_I_VI = as.logical(Protected_I_VI))
+PUs <- fSelect_AllWDPA(PUs)
+
+#Calculate how much of the planning units are protected I-IV
+PUs <- fSelect_WDPA(PUs)
 
 #Now incorporate protection of PUs 9111 downloading fiji protected areas
 wdpa_FJI0 <- st_read("Data/WDPA_poly/WDPA_WDOECM_Dec2022_Public_FJI_shp_0/WDPA_WDOECM_Dec2022_Public_FJI_shp-polygons.shp")
@@ -331,10 +335,11 @@ PUs9111_GMW_WDPA <- PUs9111_GMW_WDPA %>%
   summarise(AreaWDPA_I_VI = sum(AreaWDPA_I_VI)) %>%
   mutate(AreaWDPA_I_VI = ifelse(is.na(AreaWDPA_I_VI), 0, AreaWDPA_I_VI))
 
-PUs[9111, "AreaWDPA_I_VI"] <- PUs9111_GMW_WDPA$AreaWDPA_I_VI
+PUs[9111, "AreaWDPA_I_VI"] <- set_units(PUs9111_GMW_WDPA$AreaWDPA_I_VI, km^2)
 
 #Areas with more than 50% of mangrove area covered by mangroves are defined as protected
-PUs$Protected_I_VI <- ifelse(as.numeric(PUs$AreaWDPA_I_VI) < as.numeric(PUs$AreaGMWKm)/2, "FALSE", "TRUE")
+PUs$Protected_I_VI <- ifelse(as.numeric(PUs$AreaWDPA_I_VI) < as.numeric(PUs$AreaGMWKm)/2, "FALSE", "TRUE") %>% 
+  as.logical()
 
-dir.create("RDS_rr")
-saveRDS(PUs, "RDS_rr/PUs_Splitted_I_IV_and_All_9111.rds")
+dir.create("RDS")
+saveRDS(PUs, "RDS/PUs_Splitted_I_IV_and_All_9111.rds")
