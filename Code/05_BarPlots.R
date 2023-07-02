@@ -45,7 +45,6 @@ sol_ConsFeat_50_Bio_WDPA <- result_Bio_WDPA %>%
 
 # Barplot
 Plot30_WDPA <- fplot_BarPlots(PUs, sol_ConsFeat_30_WDPA, sol_ConsFeat_30_Bio_WDPA)
-Plot50_WDPA <- fplot_BarPlots(PUs, sol_ConsFeat_50_WDPA, sol_ConsFeat_50_Bio_WDPA)
 
 Plot30_WDPA[[2]] + #Plot50_WDPA[[2]] + 
   Plot30_WDPA[[3]] + #Plot50_WDPA[[3]] +
