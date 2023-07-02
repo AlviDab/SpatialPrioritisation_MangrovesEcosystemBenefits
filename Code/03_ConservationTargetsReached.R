@@ -467,8 +467,8 @@ ntarget_reached_df_BioServ_AllWDPA <- ntarget_reached_df_BioServ_AllWDPA %>%
   rename(reached_Biodiversity_ES = reached) %>% 
   dplyr::select(!method)
 
-Fig3E <- ntarget_reached_df_Bio %>% 
-  left_join(ntarget_reached_df_BioServ, by = "prct")
+Fig3E <- ntarget_reached_df_Bio_AllWDPA %>% 
+  left_join(ntarget_reached_df_BioServ_AllWDPA, by = "prct")
 
 Fig3 <- list(Fig3A, Increase_EcoServices_Prct, 
              Fig3C, Increase_EcoServices_WDPA_Prct, 

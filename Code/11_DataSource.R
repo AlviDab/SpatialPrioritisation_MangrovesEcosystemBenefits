@@ -32,4 +32,4 @@ list_sheets <- c("Fig1", "Fig2", "Fig3A", "Fig3B", "Fig3C", "Fig3D", "Fig3E", "F
 
 names(list_figs) <- list_sheets
 
-openxlsx::write.xlsx(list_figs, paste0(file, "SourceData.xlsx"))
+openxlsx::write.xlsx(list_figs, "Figures/gurobi/SourceData.xlsx")
