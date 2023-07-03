@@ -114,7 +114,7 @@ list_sheets <- c("AllWDPA_country", "AllWDPA_continent", "+7%_Country_AllWDPA", 
 file <- paste("Figures/gurobi/", sep = "")
 
 lapply(seq_along(Stat_CountryContinent_AllWDPA), function(z) {
-  write.xlsx(Stat_CountryContinent_WDPA[[z]], paste0(file, "Stat_CountryContinent_AllWDPA.xlsx"), sheetName = list_sheets[z], append = TRUE) 
+  write.xlsx(Stat_CountryContinent_AllWDPA[[z]], paste0(file, "Stat_CountryContinent_AllWDPA.xlsx"), sheetName = list_sheets[z], append = TRUE) 
 }
 )
 
