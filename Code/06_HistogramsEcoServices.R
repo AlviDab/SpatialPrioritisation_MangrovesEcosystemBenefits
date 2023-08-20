@@ -3,12 +3,7 @@
 #Code to prepare the barplot and the radar plot presented in the study
 
 #Open all the packages needed
-library(tidyverse)
-library(sf)
-library(prioritizr)
-library(patchwork)
-library(viridis)
-library(ggthemes)
+pacman::p_load(tidyverse, sf, prioritizr, patchwork, viridis, ggthemes)
 
 #Open rds
 result_BioServ <- readRDS("RDS/1e-4/gurobi/result_BioServ.rds")

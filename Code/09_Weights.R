@@ -5,15 +5,7 @@
 #Produce and run all the prioritisations
 
 #Open all the packages needed
-library(tidyverse)
-library(sf)
-library(prioritizr)
-library(units)
-library(patchwork)
-library(mapview)
-library(viridis)
-library(ggthemes)
-library(rnaturalearth)
+pacman::p_load(tidyverse, sf, prioritizr, units, patchwork, mapview, viridis, ggthemes, rnaturalearth)
 
 ############################################
 #I set the various layer for the analysis

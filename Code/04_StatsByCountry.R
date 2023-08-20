@@ -4,14 +4,7 @@
 #Plot of circular barplots and print of excel sheets with the results
 
 #Open all the packages needed
-library(tidyverse)
-library(sf)
-library(prioritizr)
-library(patchwork)
-library(viridis)
-library(ggthemes)
-library(openxlsx)
-library(xlsx)
+pacman::p_load(tidyverse, sf, prioritizr, patchwork, viridis, ggthemes, openxlsx, xlsx)
 
 source("Functions/fStat_CountryContinent.r")
 source("Functions/fStat_CountryContinent_PAs.r")

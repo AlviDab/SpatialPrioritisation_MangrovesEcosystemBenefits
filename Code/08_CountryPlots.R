@@ -3,13 +3,7 @@
 #Code to produce the priority areas plots at country scale
 
 #Open all the packages needed
-library(tidyverse)
-library(sf)
-library(prioritizr)
-library(patchwork)
-library(viridis)
-library(ggthemes)
-library(rnaturalearth)
+pacman::p_load(tidyverse, sf, prioritizr, patchwork, viridis, ggthemes, rnaturalearth)
 
 #Here I produce the graphs that report the values of the ecosystem benefits and
 #biodiversity benefits for each planning unit

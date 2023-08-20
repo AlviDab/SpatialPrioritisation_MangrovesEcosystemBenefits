@@ -3,7 +3,7 @@
 #Analysis of the number of conservation targets reached for incremental area budgets
 #Calculation and plot of the amount of ecosystem services protected
 
-pacman::p_load(tidyverse, sf, knitr, patchwork, viridis, ggthemes)
+pacman::p_load(tidyverse, sf, knitr, patchwork, viridis, ggthemes, svglite)
 
 ## Biodiversity and ecosystem services
 
@@ -427,7 +427,6 @@ ptot <- wrap_elements(p1) / wrap_elements(p2) / wrap_elements(p3)
 
 ggsave("Figures/gurobi/Targets_IncreaseServices.svg",
          dpi = 1000, units = "cm", width = 16, height = 21) 
-
 
 # Save layers
 saveRDS(ntarget_reached_df_BioServ, "RDS/1e-4/gurobi/ntarget_reached_df_BioServ.rds")

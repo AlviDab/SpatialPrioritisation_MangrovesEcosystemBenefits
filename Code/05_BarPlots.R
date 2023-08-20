@@ -3,14 +3,7 @@
 #Code to produce the barplot included in the study
 
 #Open all the packages needed
-library(tidyverse)
-library(sf)
-library(prioritizr)
-library(patchwork)
-library(viridis)
-library(ggthemes)
-library(openxlsx)
-library(xlsx)
+pacman::p_load(tidyverse, sf, prioritizr, patchwork, viridis, ggthemes, openxlsx, xlsx)
 
 ################################################################################
 # Barplots 
