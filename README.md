@@ -11,4 +11,4 @@ Data to run the code in 01_PrepareLayers.R can be downloaded at:
 - Coastal protection (Menéndez et al. 2020) (https://osf.io/ecs4p/)
 - Fishing intensity (Zu Ermgassen et al., 2021) → not publicly available
 
-Data to run the code starting from 02_Prioritisation.R are provided as RDS.
+Data to run most of the code starting from 02_Prioritisation.R are provided as RDS. To run part of 07_Plot_ValueLayers.R two RDS (WDPA_123_clean.rds and WDPA_FJI.rds) need to be produced from 01b_ProtectedAreas.R
