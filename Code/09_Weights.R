@@ -86,7 +86,7 @@ PUs <- PUs %>%
 #Calculate species distribution range
 species <- PUs_NotSplitted %>% 
   as_tibble() %>% 
-  select(!AreaGMWKm) %>% 
+  dplyr::select(!AreaGMWKm) %>% 
   dplyr::select(3:67) #Select only the species columns
 
 species <- species %>% 
