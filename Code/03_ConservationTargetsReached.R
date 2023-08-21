@@ -425,6 +425,7 @@ p3 <- plot_TargetsReached_AllWDPA +
 
 ptot <- wrap_elements(p1) / wrap_elements(p2) / wrap_elements(p3)
 
+dir.create("Figures/gurobi", recursive = TRUE)
 ggsave("Figures/gurobi/Targets_IncreaseServices.svg",
          dpi = 1000, units = "cm", width = 16, height = 21) 
 
