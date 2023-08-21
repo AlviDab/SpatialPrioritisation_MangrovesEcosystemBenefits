@@ -2,7 +2,7 @@
 
 In this repository is reported the code to run the prioritisation and produce the figures of the study "Priority areas to protect mangroves and maximise ecosystem benefits". 
 
-The code should be run sequentially.
+The code should be run sequentially. To ensure that the code runs smoothly, please make sure that the following directories (and their sub-directories) have been made: i) `Figures/`, and ii) `Figures/gurobi`.
 
 Data to run the code in 01_PrepareLayers.R can be downloaded at:
 - Global Mangrove Watch (https://www.globalmangrovewatch.org/)

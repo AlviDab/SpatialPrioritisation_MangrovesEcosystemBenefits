@@ -12,10 +12,7 @@
 
 fcreate_kappacorrplot <- function(sol, name_sol) {
   
-  library(irr)
-  library(sf)
-  library(tidyverse)
-  library(corrplot)
+  pacman::p_load(irr, sf, tidyverse, corrplot)
   
   s_list <- lapply(seq_along(sol), function(x) {
     sol[[x]] %>% 
