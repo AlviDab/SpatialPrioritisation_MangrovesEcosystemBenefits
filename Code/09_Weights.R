@@ -206,7 +206,7 @@ for(l in c(10, 100, 1000)) {
         add_feature_weights(ConsFeatures$w) #Add feature weights
     }
     
-    sol_AreaTarget <- solve(p_AreaTarget) #Solve the conservation planning problem
+    sol_AreaTarget <- solve(p_AreaTarget, force = TRUE) #Solve the conservation planning problem
     
     list_sol_AreaTarget_BioServ[[x]] <- list(p_AreaTarget, sol_AreaTarget) #Add the solution to the list of solutions
   }
